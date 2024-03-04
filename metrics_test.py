@@ -9,6 +9,7 @@ import unittest
 
 class TestMetrics(unittest.TestCase):
     test_tree_dir = "test_data"
+    #test_tree_names = ["fischer2"]
     test_tree_names = ["fischer1", "fischer2", "fischer3", "fischer4", "fischer5", "fischer6"]
 
     expected = {}
@@ -39,7 +40,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 31 / 12,
         "mean_I_w" : 1,
         "total_I_w" : 3,
-        "colijn_plazotta_rank" : 68}
+        "colijn_plazotta_rank" : 68,
+        "treeness" : 0.4,
+        "stemminess" : 62 / 315}
 
     expected["fischer2"] = {
         "average_leaf_depth" :  19 / 6,
@@ -68,7 +71,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 11 / 6,
         "mean_I_w" : 0.55,
         "total_I_w" : 1.65,
-        "colijn_plazotta_rank" : 30}
+        "colijn_plazotta_rank" : 30,
+        "treeness" : 0.4,
+        "stemminess" : 29/126}
 
     expected["fischer3"] = {
         "average_leaf_depth" : 3,
@@ -97,7 +102,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 5 / 6,
         "mean_I_w" : 5 / 11,
         "total_I_w" : 10 / 11,
-        "colijn_plazotta_rank" : 17}
+        "colijn_plazotta_rank" : 17,
+        "treeness" : 0.4,
+        "stemminess" : 44/180}
 
     expected["fischer4"] = {
         "average_leaf_depth" : 17 /  6,
@@ -126,7 +133,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" :  7 / 6,
         "mean_I_w" : 14 / 19,
         "total_I_w" : 28 / 19,
-        "colijn_plazotta_rank" :  13}
+        "colijn_plazotta_rank" :  13,
+        "treeness" : 0.4,
+        "stemminess" : 106/420}
 
     expected["fischer5"] = {
         "average_leaf_depth" : 16 / 6,
@@ -155,7 +164,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 5 / 12,
         "mean_I_w" : 5 / 28,
         "total_I_w" : 5 / 14,
-        "colijn_plazotta_rank" : 9}
+        "colijn_plazotta_rank" : 9,
+        "treeness" : 0.4,
+        "stemminess" : 8 / 28}
 
     expected["fischer6"] = {
         "average_leaf_depth" : 16 / 6,
@@ -184,7 +195,9 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 0,
         "mean_I_w" : 0,
         "total_I_w" : 0,
-        "colijn_plazotta_rank" : 7}
+        "colijn_plazotta_rank" : 7,
+        "treeness" : 0.4,
+        "stemminess" : 16 / 60}
 
 
     def test_absolute(self):

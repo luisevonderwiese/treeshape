@@ -28,14 +28,18 @@ absolute_metrics =[
     "total_I_prime",
     "mean_I_w",
     "total_I_w",
-    "colijn_plazotta_rank"]
+    "colijn_plazotta_rank",
+    "treeness",
+    "stemminess"]
 
 
 relative_metrics = [
     "average_leaf_depth",
+    "variance_of_leaves_depths",
     "sackin_index",
     "B_2_index",
     "height",
+    "s_roof_shape",
     "cherry_index",
     "cophenetic_index",
     "root_imbalance",
@@ -43,7 +47,9 @@ relative_metrics = [
     "colless_index",
     "quadratic_colless_index",
     "rogers_j_index",
-    "symmetry_nodes_index"]
+    "symmetry_nodes_index",
+    "treeness",
+    "stemminess"]
 #============ GENERAL ============
 
 def height(tree):
@@ -213,6 +219,10 @@ def I_values(tree, mode, sw = 0):
             elif mode == "I_w":
                 values.append(I_w(node, sw))
     return values
+
+
+
+
 
 #============ ABSOLUTE METRICS ============
 
@@ -385,6 +395,32 @@ def absolute(metric_name, tree):
             else:
                 return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
+        case "treeness":
+            all_brlens = 0
+            internal_brlens = 0
+            for node in tree.traverse("postorder"):
+                brlen = node.dist
+                all_brlens += brlen
+                if not node.is_leaf():
+                    internal_brlens += brlen
+            return internal_brlens / all_brlens
+
+        case "stemminess":
+            values = []
+            for node in tree.iter_descendants("postorder"):
+                d = node.dist
+                if node.is_leaf():
+                    node.add_features(sum_below=d)
+                else:
+                    c = node.children
+                    s = d + c[0].sum_below + c[1].sum_below
+                    values.append(d / s)
+                    node.add_features(sum_below=s)
+            return sum(values) / len(values)
+
+
+
+
 
 
 def relative(metric_name, tree):
@@ -417,8 +453,7 @@ def maximum(metric_name, n):
             return m - (((m - 1) * m) / (2 * n))
 
         case "variance_of_leaves_depths":
-            return float('nan') #no tight minimum for binary trees
-            #return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n)
+            return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n) #no tight minimum for binary trees
 
         case "sackin_index":
             m = n - 1
@@ -439,8 +474,7 @@ def maximum(metric_name, n):
             return float('nan')
 
         case "s_roof_shape":
-            return float('nan')
-            #return math.log2(math.factorial(n - 1)) # problem with minimum
+            return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
 
         case "cherry_index":
             return math.floor(n / 2)
@@ -503,6 +537,13 @@ def maximum(metric_name, n):
         case "colijn_plazotta_rank":
             return float('nan')
 
+        case "treeness":
+            return 1 #pseudo bound
+
+        case "stemminess":
+            return 1 #pseudo bound
+
+
 
 def minimum(metric_name, n):
     match metric_name:
@@ -511,8 +552,7 @@ def minimum(metric_name, n):
             return  x + 3 - (2 / n) * math.pow(2, x + 1)
 
         case "variance_of_leaves_depths":
-            return float('nan')
-            #return 0 #bound only tight for general trees
+            return 0 #bound only tight for general trees
 
         case "sackin_index":
             x = math.floor(math.log2(n / 2))
@@ -532,7 +572,7 @@ def minimum(metric_name, n):
             #return 2 #problem with maximum
 
         case "s_roof_shape":
-            return float('nan')
+            return math.log2(n - 1) #only tight for general trees
 
         case "cherry_index":
             return 1
@@ -620,3 +660,9 @@ def minimum(metric_name, n):
 
         case "colijn_plazotta_rank":
             return float('nan')
+
+        case "treeness":
+            return 0 #pseudo bound
+
+        case "stemminess":
+            return 0 #pseudo bound
