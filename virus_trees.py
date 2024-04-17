@@ -59,7 +59,7 @@ for virus_type in ["rsv"]:
         if os.path.isfile(rooted_tree_path):
             continue
         prefix = os.path.join(results_dir, "raxmlng", msa_name_x, "gtr")
-        run_inference(os.path.join(msa_dir, msa_name), "GTR", prefix)
+        run_inference(os.path.join(msa_dir, msa_name), "GTR+G", prefix)
         best_tree_path = get_best_tree_path(prefix)
         unrooted_tree_path = os.path.join(unrooted_trees_dir, msa_name_x + ".unrooted.tree")
         shutil.copyfile(best_tree_path, unrooted_tree_path)
