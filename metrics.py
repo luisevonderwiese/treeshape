@@ -33,6 +33,38 @@ absolute_metrics =[
     "stemminess"]
 
 
+balance_metrics =[
+    "B_1_index",
+    "B_2_index",
+    "maximum_width",
+    "cherry_index"]
+
+
+imbalance_metrics =[
+    "average_leaf_depth",
+    "variance_of_leaves_depths",
+    "sackin_index",
+    "height",
+    "s_roof_shape",
+    "cophenetic_index",
+    "root_imbalance",
+    "I_root",
+    "colless_index",
+    "corrected_colless_index",
+    "quadratic_colless_index",
+    "I_2_index",
+    "stairs",
+    "rogers_j_index",
+    "symmetry_nodes_index",
+    "mean_I",
+    "total_I",
+    "mean_I_prime",
+    "total_I_prime",
+    "mean_I_w",
+    "total_I_w",
+    "colijn_plazotta_rank"]
+
+
 relative_metrics = [
     "average_leaf_depth",
     "variance_of_leaves_depths",
@@ -425,7 +457,7 @@ def absolute(metric_name, tree):
 
 def relative(metric_name, tree):
     if not metric_name in relative_metrics:
-        print(metric_name, " is not an implemented absolute metric!")
+        print(metric_name, " is not an implemented relative metric!")
         return
     v = absolute(metric_name, tree)
     n = clade_size(tree)
@@ -444,6 +476,32 @@ def relative(metric_name, tree):
         print("v:", str(v))
         assert(False)
     return (v - min_v) / (max_v - min_v)
+
+
+def relative_normalized(metric_name, tree):
+    if not metric_name in relative_metrics:
+        print(metric_name, " is not an implemented absolute metric!")
+        return
+    v = absolute(metric_name, tree)
+    n = clade_size(tree)
+    min_v = minimum(metric_name, n)
+    max_v = maximum(metric_name, n)
+    if max_v == min_v:
+        return float('nan')
+    if max_v - v < -0.00001:
+        print("Value above max for", metric_name)
+        print("max_v:", str(max_v))
+        print("v:", str(v))
+        assert(False)
+    if v - min_v < -0.00001:
+        print("Value below min for", metric_name)
+        print("min_v:", str(min_v))
+        print("v:", str(v))
+        assert(False)
+    relative = (v - min_v) / (max_v - min_v)
+    if metric_name in balance_metrics:
+        return 1 - relative
+    return relative
 
 
 def maximum(metric_name, n):
