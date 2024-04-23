@@ -16,7 +16,7 @@ for type in ["rsv"]:
     for i, row in df.iterrows():
         tree =  Tree(os.path.join(trees_dir, row["tree_name"]))
         for metric_name in metrics.relative_metrics:
-            df.at[i, metric_name] = metrics.relative(metric_name, tree)
+            df.at[i, metric_name] = metrics.relative_normalized(metric_name, tree)
     print(df)
     dfs[type] = df
     df.to_csv(os.path.join("data/virus", type, "metrics.csv"))

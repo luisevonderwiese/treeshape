@@ -63,13 +63,13 @@ for virus_type in ["rsv"]:
         best_tree_path = get_best_tree_path(prefix)
         unrooted_tree_path = os.path.join(unrooted_trees_dir, msa_name_x + ".unrooted.tree")
         shutil.copyfile(best_tree_path, unrooted_tree_path)
-        run_root_digger(os.path.join(msa_dir, msa_name), unrooted_tree_path)
-        shutil.copyfile(unrooted_tree_path + ".rooted.tree", rooted_tree_path)
-        suffixes = [".ckp" , ".lwr.tree", ".rooted.tree"]
-        for suffix in suffixes:
-            src = unrooted_tree_path + suffix
-            dst_dir = os.path.join(rd_dir, msa_name_x)
-            if not os.path.isdir(dst_dir):
-                os.makedirs(dst_dir)
-            dst = os.path.join(dst_dir, "rd" + suffix)
-            shutil.move(src, dst)
+        #run_root_digger(os.path.join(msa_dir, msa_name), unrooted_tree_path)
+        #shutil.copyfile(unrooted_tree_path + ".rooted.tree", rooted_tree_path)
+        #suffixes = [".ckp" , ".lwr.tree", ".rooted.tree"]
+        #for suffix in suffixes:
+        #    src = unrooted_tree_path + suffix
+        #    dst_dir = os.path.join(rd_dir, msa_name_x)
+        #    if not os.path.isdir(dst_dir):
+        #        os.makedirs(dst_dir)
+        #    dst = os.path.join(dst_dir, "rd" + suffix)
+        #    shutil.move(src, dst)
