@@ -18,28 +18,29 @@ def run_inference(msa_path, model, prefix, args = ""):
     prefix_dir = "/".join(prefix.split("/")[:-1])
     if not os.path.isdir(prefix_dir):
         os.makedirs(prefix_dir)
-    #if not os.path.isfile(get_best_tree_path(prefix)):
-    #    args = args + " --redo"
+    if not os.path.isfile(prefix + ".raxml.bestTree"):
+        args = args + " --redo"
     command = raxmlng_path
     command += " --msa " + msa_path
     command += " --model " + model
     command += " --prefix " + prefix
-    command += " --threads auto --seed 2 --redo"
+    command += " --threads auto --seed 2"
     command += " " + args
     os.system(command)
 
 def run_root_digger(msa_path, tree_path):
     command = rd_path
-    command += " --msa " + msa_path
-    command += " --tree " + tree_path
+    command += " --msa /" + msa_path
+    command += " --tree /" + tree_path
     command += "  --exhaustive "
+    print(command)
     os.system(command)
     suffixes = [".ckp" , "lwr.tree", ".rooted.tree"]
 
 
 
 raxmlng_path = "./bin/raxml-ng"
-rd_path = "./bin/rd"
+rd_path = "docker run -v $(pwd)/data/:/data/ my_rd:latest"
 
 for virus_type in ["rsv"]:
     base_dir = os.path.join("data/virus", virus_type)
@@ -59,17 +60,17 @@ for virus_type in ["rsv"]:
         if os.path.isfile(rooted_tree_path):
             continue
         prefix = os.path.join(results_dir, "raxmlng", msa_name_x, "gtr")
-        run_inference(os.path.join(msa_dir, msa_name), "GTR+G", prefix)
-        best_tree_path = get_best_tree_path(prefix)
+        #run_inference(os.path.join(msa_dir, msa_name), "GTR+G", prefix)
+        #best_tree_path = get_best_tree_path(prefix)
         unrooted_tree_path = os.path.join(unrooted_trees_dir, msa_name_x + ".unrooted.tree")
-        shutil.copyfile(best_tree_path, unrooted_tree_path)
-        #run_root_digger(os.path.join(msa_dir, msa_name), unrooted_tree_path)
-        #shutil.copyfile(unrooted_tree_path + ".rooted.tree", rooted_tree_path)
-        #suffixes = [".ckp" , ".lwr.tree", ".rooted.tree"]
-        #for suffix in suffixes:
-        #    src = unrooted_tree_path + suffix
-        #    dst_dir = os.path.join(rd_dir, msa_name_x)
-        #    if not os.path.isdir(dst_dir):
-        #        os.makedirs(dst_dir)
-        #    dst = os.path.join(dst_dir, "rd" + suffix)
-        #    shutil.move(src, dst)
+        #shutil.copyfile(best_tree_path, unrooted_tree_path)
+        run_root_digger(os.path.join(msa_dir, msa_name), unrooted_tree_path)
+        shutil.copyfile(unrooted_tree_path + ".rooted.tree", rooted_tree_path)
+        suffixes = [".ckp" , ".lwr.tree", ".rooted.tree"]
+        for suffix in suffixes:
+            src = unrooted_tree_path + suffix
+            dst_dir = os.path.join(rd_dir, msa_name_x)
+            if not os.path.isdir(dst_dir):
+                os.makedirs(dst_dir)
+            dst = os.path.join(dst_dir, "rd" + suffix)
+            shutil.move(src, dst)
