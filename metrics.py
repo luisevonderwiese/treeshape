@@ -479,29 +479,12 @@ def relative(metric_name, tree):
 
 
 def relative_normalized(metric_name, tree):
-    if not metric_name in relative_metrics:
-        print(metric_name, " is not an implemented absolute metric!")
-        return
-    v = absolute(metric_name, tree)
-    n = clade_size(tree)
-    min_v = minimum(metric_name, n)
-    max_v = maximum(metric_name, n)
-    if max_v == min_v:
-        return float('nan')
-    if max_v - v < -0.00001:
-        print("Value above max for", metric_name)
-        print("max_v:", str(max_v))
-        print("v:", str(v))
-        assert(False)
-    if v - min_v < -0.00001:
-        print("Value below min for", metric_name)
-        print("min_v:", str(min_v))
-        print("v:", str(v))
-        assert(False)
-    relative = (v - min_v) / (max_v - min_v)
+    rel = relative(metric_name, tree)
+    if rel != rel:
+        return rel
     if metric_name in balance_metrics:
-        return 1 - relative
-    return relative
+        return 1 - rel
+    return rel
 
 
 def maximum(metric_name, n):
