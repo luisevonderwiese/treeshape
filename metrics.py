@@ -253,7 +253,13 @@ def I_values(tree, mode, sw = 0):
     return values
 
 
-
+def is_bifurcating(tree):
+    c = tree.children
+    if len(c) == 2:
+        return is_bifurcating(c[0]) and is_bifurcating(c[1])
+    if len(c) == 0:
+        return True
+    return False
 
 
 #============ ABSOLUTE METRICS ============
