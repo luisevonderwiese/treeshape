@@ -103,24 +103,25 @@ def leaf_depths(tree):
     return depths_in_subtree(tree, 0)
 
 def clade_size(v):
-    return len(v)
+    try:
+        return v.clade_size
+    except:
+        v.add_feature("clade_size", len(v))
+        return v.clade_size
 
+def precompute_clade_sizes(tree):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("clade_size", 1)
+            continue
+        c = node.children
+        assert(len(c) == 2)
+        node.add_feature("clade_size", c[0].clade_size + c[1].clade_size)
+    return tree
 
-def lca(tree, v1, v2):
-    if tree == v1 or tree == v2:
-        return tree
-    if tree.is_leaf():
-        return None
-    c = tree.children
-    assert(len(c) == 2)
-    left_lca = lca(c[0], v1, v2)
-    right_lca = lca(c[1], v1, v2)
-    if left_lca and right_lca:
-        return tree
-    return left_lca if left_lca is not None else right_lca
 
 def connecting_path_length(tree, v1, v2):
-    ancestor = lca(tree, v1, v2)
+    ancestor = tree.get_common_ancestor(v1, v2)
     length = 0
     while(v1 != ancestor):
         v1 = v1.up
@@ -145,9 +146,6 @@ def inner_nodes(tree):
     return inner_nodes
 
 
-def cophenetic_value(tree, v1, v2):
-    return node_depth(tree, lca(tree, v1, v2))
-
 def balance_index(tree, v):
     if v.is_leaf():
         return 0
@@ -156,15 +154,16 @@ def balance_index(tree, v):
         assert(len(c) == 2)
         return abs(clade_size(c[0]) - clade_size(c[1]))
 
-def prob(tree, v):
-    if tree.is_leaf():
-        if tree == v:
-            return 1
-        else:
-            return 0
+def prob_recursive(tree):
     c = tree.children
     assert(len(c) == 2)
-    return 0.5 * prob(c[0], v) + 0.5 * prob(c[1], v)
+    p = tree.prob/2
+    for child in c:
+        child.add_feature("prob", p)
+        if not child.is_leaf():
+            prob_recursive(child)
+
+
 
 
 def isomorphic(v1, v2):
@@ -288,8 +287,10 @@ def absolute(metric_name, tree):
 
         case "B_2_index":
             s = 0
+            tree.add_feature("prob", 1)
+            prob_recursive(tree)
             for leaf in tree.iter_leaves():
-                p_leaf = prob(tree, leaf)
+                p_leaf = leaf.prob
                 s += p_leaf * math.log2(p_leaf)
             return - s
 
@@ -317,12 +318,10 @@ def absolute(metric_name, tree):
             return cnt
 
         case "cophenetic_index":
-            leaves = [l for l in tree.iter_leaves()]
             s = 0
-            for i, node1 in enumerate(leaves):
-                for j in range(i):
-                    node2 = leaves[j]
-                    s += cophenetic_value(tree, node1, node2)
+            for node in tree.iter_descendants("postorder"):
+                if not node.is_leaf():
+                    s += math.comb(clade_size(node), 2)
             return s
 
         case "diameter":

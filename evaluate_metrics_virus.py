@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from ete3 import Tree
 import metrics
-import matplotlib.pyplot as plt
+
 dfs = {}
 trees_dir = "data/virus/trees/rooted"
 tree_names = []
@@ -17,10 +17,9 @@ for i, row in df.iterrows():
     if not metrics.is_bifurcating(tree):
         print("!!!!!!!!!!!!!", row["tree_name"], "not bifurcating")
         continue
+    tree = metrics.precompute_clade_sizes(tree)
     print(row["tree_name"])
     for metric_name in metrics.relative_metrics:
-        if metric_name == "cophenetic_index":
-            continue
         print(metric_name)
         df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree), 3)
 print(df)
