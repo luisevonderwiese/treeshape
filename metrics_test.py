@@ -204,7 +204,7 @@ class TestMetrics(unittest.TestCase):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
-            tree = metrics.precompute_clade_sizes(tree)
+            metrics.precompute(tree)
             for metric_name in metrics.absolute_metrics:
                 self.assertAlmostEqual(metrics.absolute(metric_name, tree), self.expected[test_tree_name][metric_name])
 
@@ -212,7 +212,7 @@ class TestMetrics(unittest.TestCase):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
-            tree = metrics.precompute_clade_sizes(tree)
+            metrics.precompute(tree)
             for metric_name in metrics.relative_metrics:
                 metrics.relative(metric_name, tree)
 

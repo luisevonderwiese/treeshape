@@ -84,30 +84,29 @@ relative_metrics = [
     "stemminess"]
 #============ GENERAL ============
 
+def precompute(tree):
+    precompute_clade_sizes(tree)
+    precompute_depths(tree)
+    
+
 def height(tree):
     return max(leaf_depths(tree))
 
 def width(tree, i):
     leaf_depths(tree).count(i)
 
-def depths_in_subtree(node, depth):
-    depths_below = []
-    for child in node.children:
-        if child.is_leaf():
-            depths_below.append(depth + 1)
-        else:
-            depths_below += depths_in_subtree(child, depth + 1)
-    return depths_below
-
 def leaf_depths(tree):
-    return depths_in_subtree(tree, 0)
+    try:
+        return [l.depth - tree.depth for l in tree.iter_leaves()]
+    except:
+        raise Exception("Run precompute_depths(tree) first")
+
 
 def clade_size(v):
     try:
         return v.clade_size
     except:
-        v.add_feature("clade_size", len(v))
-        return v.clade_size
+        raise Exception("Run precompute_clade_sizes(tree) first")
 
 def precompute_clade_sizes(tree):
     for node in tree.traverse("postorder"):
@@ -117,7 +116,20 @@ def precompute_clade_sizes(tree):
         c = node.children
         assert(len(c) == 2)
         node.add_feature("clade_size", c[0].clade_size + c[1].clade_size)
-    return tree
+
+
+def precompute_depths(tree):
+    tree.add_feature("depth", 0)
+    depths_recursive(tree)
+
+def depths_recursive(tree):
+    c = tree.children
+    assert(len(c) == 2)
+    d = tree.depth + 1
+    for child in c:
+        child.add_feature("depth", d)
+        if not child.is_leaf():
+            depths_recursive(child)
 
 
 def connecting_path_length(tree, v1, v2):
@@ -131,12 +143,6 @@ def connecting_path_length(tree, v1, v2):
         length += 1
     return length
 
-def node_depth(tree, v):
-    depth = 0
-    while(v != tree):
-        v = v.up
-        depth += 1
-    return depth
 
 def inner_nodes(tree):
     inner_nodes = []

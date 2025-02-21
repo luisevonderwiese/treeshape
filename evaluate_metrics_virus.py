@@ -17,7 +17,7 @@ for i, row in df.iterrows():
     if not metrics.is_bifurcating(tree):
         print("!!!!!!!!!!!!!", row["tree_name"], "not bifurcating")
         continue
-    tree = metrics.precompute_clade_sizes(tree)
+    metrics.precompute(tree)
     print(row["tree_name"])
     for metric_name in metrics.relative_metrics:
         print(metric_name)
