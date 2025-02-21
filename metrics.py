@@ -5,6 +5,7 @@ absolute_metrics =[
     "average_leaf_depth",
     "variance_of_leaves_depths",
     "sackin_index",
+    "total_path_length",
     "B_1_index",
     "B_2_index",
     "height",
@@ -44,6 +45,7 @@ imbalance_metrics =[
     "average_leaf_depth",
     "variance_of_leaves_depths",
     "sackin_index",
+    "total_path_length",
     "height",
     "s_roof_shape",
     "cophenetic_index",
@@ -69,6 +71,7 @@ relative_metrics = [
     "average_leaf_depth",
     "variance_of_leaves_depths",
     "sackin_index",
+    "total_path_length",
     "B_2_index",
     "height",
     "s_roof_shape",
@@ -283,6 +286,9 @@ def absolute(metric_name, tree):
 
         case "sackin_index":
             return sum(leaf_depths(tree))
+
+        case "total_path_length":
+            return sum([node.depth for node in tree.traverse("postorder")])
 
         case "B_1_index":
             s = 0
@@ -511,6 +517,9 @@ def maximum(metric_name, n):
             m = n - 1
             return (n * m) - (((m - 1) * m) / 2)
 
+        case "total_path_length":
+            return (n * n) - n
+
         case "B_1_index":
             return float('nan')
 
@@ -609,6 +618,10 @@ def minimum(metric_name, n):
         case "sackin_index":
             x = math.floor(math.log2(n / 2))
             return (x + 3) * n - math.pow(2, x + 2)
+
+        case "total_path_length":
+            l = math.floor(math.log2(n))
+            return 2 * l * n - math.pow(2, l + 2) + 2 * n + 2
 
         case "B_1_index":
             return float('nan')
