@@ -21,7 +21,8 @@ absolute_metrics =[
     "corrected_colless_index",
     "quadratic_colless_index",
     "I_2_index",
-    "stairs",
+    "stairs1",
+    "stairs2",
     "rogers_j_index",
     "symmetry_nodes_index",
     "mean_I",
@@ -57,7 +58,8 @@ imbalance_metrics =[
     "corrected_colless_index",
     "quadratic_colless_index",
     "I_2_index",
-    "stairs",
+    "stairs1",
+    "stairs2",
     "rogers_j_index",
     "symmetry_nodes_index",
     "mean_I",
@@ -84,6 +86,7 @@ relative_metrics = [
     "I_root",
     "colless_index",
     "quadratic_colless_index",
+    "stairs1",
     "rogers_j_index",
     "symmetry_nodes_index",
     "treeness",
@@ -391,7 +394,15 @@ def absolute(metric_name, tree):
                     s += b / (n_v - 2)
             return s / (n - 2)
 
-        case "stairs":
+        case "stairs1":
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    if balance_index(tree, node) != 0:
+                        s += 1
+            return s / (clade_size(tree)- 1)       
+
+        case "stairs2":
             s = 0
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
@@ -578,9 +589,12 @@ def maximum(metric_name, n):
 
         case "I_2_index":
             return float('nan')
-            #return 1 problem with miimum
-
-        case "stairs":
+            #return 1 problem with minimum
+        
+        case "stairs1":
+            return max(0, n - 2) / (n - 1)
+        
+        case "stairs2":
             return float('nan')
             #return sum([1 / i for i in range(1, n)]) / (n - 1) (holds for caterpillar but is not the maximum)
 
@@ -712,9 +726,12 @@ def minimum(metric_name, n):
         case "I_2_index":
             return float("nan")
 
-        case "stairs":
+        case "stairs1":
+            return (bin(n).count("1") - 1) / (n - 1)
+
+        case "stairs2":
             return float('nan')
-            return 0 #problem with maximum
+            #return 0 #problem with maximum
 
         case "rogers_j_index":
             return bin(n).count("1") - 1
