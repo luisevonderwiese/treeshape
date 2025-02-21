@@ -14,6 +14,7 @@ absolute_metrics =[
     "maximum_width",
     "s_roof_shape",
     "cherry_index",
+    "modified_cherry_index",
     "cophenetic_index",
     "diameter",
     "root_imbalance",
@@ -53,6 +54,7 @@ imbalance_metrics =[
     "average_vertex_depth",
     "height",
     "s_roof_shape",
+    "modified_cherry_index",
     "cophenetic_index",
     "root_imbalance",
     "I_root",
@@ -84,6 +86,7 @@ relative_metrics = [
     "height",
     "s_roof_shape",
     "cherry_index",
+    "modified_cherry_index",
     "cophenetic_index",
     "root_imbalance",
     "I_root",
@@ -349,6 +352,16 @@ def absolute(metric_name, tree):
                     cnt += 1
             return cnt
 
+        case "modified_cherry_index":
+            cnt = 0
+            for node in tree.traverse("postorder"):
+                if node.is_leaf():
+                    continue
+                c = node.children
+                if c[0].is_leaf() and c[1].is_leaf():
+                    cnt += 1
+            return clade_size(tree) - 2 * cnt
+
         case "cophenetic_index":
             s = 0
             for node in tree.iter_descendants("postorder"):
@@ -574,6 +587,9 @@ def maximum(metric_name, n):
         case "cherry_index":
             return math.floor(n / 2)
 
+        case "modified_cherry_index":
+            return n - 2
+
         case "cophenetic_index":
             return math.comb(n, 3)
 
@@ -686,6 +702,9 @@ def minimum(metric_name, n):
 
         case "cherry_index":
             return 1
+
+        case "modified_cherry_index":
+            return n % 2 
 
         case "cophenetic_index":
             factorial = 1
