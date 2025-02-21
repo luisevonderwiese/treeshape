@@ -1,6 +1,8 @@
 from ete3 import Tree
 import math
 import numpy as np
+from collections import Counter
+
 absolute_metrics =[
     "average_leaf_depth",
     "variance_of_leaves_depths",
@@ -12,6 +14,8 @@ absolute_metrics =[
     "B_2_index",
     "height",
     "maximum_width",
+    "maxdiff_widths",
+    "modified_maxdiff_widths",
     "s_roof_shape",
     "cherry_index",
     "modified_cherry_index",
@@ -42,6 +46,8 @@ balance_metrics =[
     "B_1_index",
     "B_2_index",
     "maximum_width",
+    "maxdiff_widths",
+    "modified_maxdiff_widths",
     "cherry_index"]
 
 
@@ -146,6 +152,9 @@ def depths_recursive(tree):
         if not child.is_leaf():
             depths_recursive(child)
 
+def widths(tree):
+    return Counter([v.depth for v in tree.traverse("postorder")])
+
 
 def connecting_path_length(tree, v1, v2):
     ancestor = tree.get_common_ancestor(v1, v2)
@@ -185,8 +194,6 @@ def prob_recursive(tree):
             prob_recursive(child)
 
 
-
-
 def isomorphic(v1, v2):
     if v1.is_leaf():
         return v2.is_leaf()
@@ -196,25 +203,6 @@ def isomorphic(v1, v2):
     c2 = v2.children
     return (isomorphic(c1[0], c2[0]) and isomorphic(c1[1], c2[1])) or (isomorphic(c1[0], c2[1]) and isomorphic(c1[1], c2[0]))
 
-
-def depth_counts(tree):
-    counts = []
-    if tree.is_leaf():
-        return [1]
-    else:
-        counts.append(0)
-        c = tree.children
-        counts_l = depth_counts(c[0])
-        for (i, l_count) in enumerate(counts_l):
-            while len(counts) < i+2:
-                counts.append(0)
-            counts[i+1] += l_count
-        counts_r = depth_counts(c[1])
-        for (i, r_count) in enumerate(counts_r):
-            while len(counts) < i+2:
-                counts.append(0)
-            counts[i+1] += r_count
-    return counts
 
 
 def I(v):
@@ -333,7 +321,23 @@ def absolute(metric_name, tree):
             return height(tree)
 
         case "maximum_width":
-            return max(depth_counts(tree))
+            return max(widths(tree).values())
+
+        case "maxdiff_widths":
+            w = widths(tree)
+            res = 0
+            for i in range(len(w) - 1):
+                diff = abs(w[i + 1] - w[i])
+                res = max(res, diff)
+            return res
+
+        case "modified_maxdiff_widths":
+            w = widths(tree)
+            res = 0
+            for i in range(len(w) - 1):
+                diff = w[i + 1] - w[i]
+                res = max(res, diff)
+            return res
 
         case "s_roof_shape":
             s = 0
@@ -581,6 +585,12 @@ def maximum(metric_name, n):
         case "maximum_width":
             return float('nan')
 
+        case "maxdiff_widths":
+            return float('nan')
+        
+        case "modified_maxdiff_widths":
+            return float('nan')
+
         case "s_roof_shape":
             return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
 
@@ -696,6 +706,14 @@ def minimum(metric_name, n):
         case "maximum_width":
             return float('nan')
             #return 2 #problem with maximum
+
+        case "maxdiff_widths":
+            return float('nan')
+            #return 1 #problem with maximum
+
+        case "modified_maxdiff_widths":
+            return float('nan')
+            #return 1 #problem with maximum
 
         case "s_roof_shape":
             return math.log2(n - 1) #only tight for general trees
