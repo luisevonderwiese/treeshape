@@ -21,6 +21,7 @@ absolute_metrics =[
     "modified_cherry_index",
     "cophenetic_index",
     "diameter",
+    "area_per_pair_index",
     "root_imbalance",
     "I_root",
     "colless_index",
@@ -158,15 +159,7 @@ def widths(tree):
 
 def connecting_path_length(tree, v1, v2):
     ancestor = tree.get_common_ancestor(v1, v2)
-    length = 0
-    while(v1 != ancestor):
-        v1 = v1.up
-        length += 1
-    while(v2 != ancestor):
-        v2 = v2.up
-        length += 1
-    return length
-
+    return v1.depth + v2.depth - 2 * ancestor.depth
 
 def inner_nodes(tree):
     inner_nodes = []
@@ -357,14 +350,7 @@ def absolute(metric_name, tree):
             return cnt
 
         case "modified_cherry_index":
-            cnt = 0
-            for node in tree.traverse("postorder"):
-                if node.is_leaf():
-                    continue
-                c = node.children
-                if c[0].is_leaf() and c[1].is_leaf():
-                    cnt += 1
-            return clade_size(tree) - 2 * cnt
+            return clade_size(tree) - 2 * absolute("cherry_index", tree) 
 
         case "cophenetic_index":
             s = 0
@@ -381,6 +367,13 @@ def absolute(metric_name, tree):
                     node2 = leaves[j]
                     m = max(m, connecting_path_length(tree, node1, node2))
             return m
+
+        
+        case "area_per_pair_index":
+            n = clade_size(tree)
+            s = absolute("sackin_index", tree)
+            c = absolute("cophenetic_index", tree)
+            return  2 / n * s - 4 / (n * (n - 1)) * c
 
         case "root_imbalance":
             c = tree.children
@@ -419,12 +412,7 @@ def absolute(metric_name, tree):
             return s / (n - 2)
 
         case "stairs1":
-            s = 0
-            for node in tree.traverse("postorder"):
-                if not node.is_leaf():
-                    if balance_index(tree, node) != 0:
-                        s += 1
-            return s / (clade_size(tree)- 1)       
+            return absolute("rogers_j_index", tree) /  (clade_size(tree)- 1)       
 
         case "stairs2":
             s = 0
@@ -607,6 +595,9 @@ def maximum(metric_name, n):
             return float('nan')
             #return n #problem with min
 
+        case "area_per_pair_index":
+            return float('nan')
+
         case "root_imbalance":
             return (n - 1) / n
 
@@ -745,6 +736,9 @@ def minimum(metric_name, n):
             #else:
             #    inbetween = minimum("diameter", n1)
             #return highest_1_bit + inbetween + lowest_1_bit
+
+        case "area_per_pair_index":
+            return float('nan')
 
         case "root_imbalance":
             return math.ceil(n / 2) / n
