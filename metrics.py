@@ -40,6 +40,7 @@ absolute_metrics =[
     "total_I_prime",
     "mean_I_w",
     "total_I_w",
+    "rooted_quartet_index",
     "colijn_plazotta_rank",
     "furnas_rank",
     "treeness",
@@ -54,6 +55,7 @@ balance_metrics =[
     "modified_maxdiff_widths",
     "max_width_over_max_depth",
     "cherry_index",
+    "rooted_quartet_index",
     "furnas_rank"]
 
 
@@ -301,6 +303,7 @@ def is_bifurcating(tree):
     return False
 
 
+
 #============ ABSOLUTE METRICS ============
 
 def absolute(metric_name, tree):
@@ -517,6 +520,16 @@ def absolute(metric_name, tree):
             sw = I_weight_sum(tree)
             return sum(I_values(tree, "I_w", sw))
 
+        case "rooted_quartet_index":
+            s = 0
+            for node in tree.traverse("postorder"):
+                if node.is_leaf():
+                    continue
+                c = node.children
+                assert(len(c) == 2)
+                s += math.comb(clade_size(c[0]), 2) * math.comb(clade_size(c[1]), 2)
+            return s * 3
+
         case "colijn_plazotta_rank":
             if clade_size(tree) == 1:
                 return 1
@@ -711,6 +724,9 @@ def maximum(metric_name, n):
         case "total_I_w":
             return float('nan')
 
+        case "rooted_quartet_index":
+            return float("nan")
+
         case "colijn_plazotta_rank":
             return float('nan')
 
@@ -872,6 +888,10 @@ def minimum(metric_name, n):
 
         case "total_I_w":
             return float('nan')
+
+        case "rooted_quartet_index":
+            return float("nan")
+            #return 0
 
         case "colijn_plazotta_rank":
             return float('nan')
