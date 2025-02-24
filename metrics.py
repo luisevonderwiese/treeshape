@@ -20,6 +20,7 @@ absolute_metrics =[
     "s_roof_shape",
     "cherry_index",
     "modified_cherry_index",
+    "d_index",
     "cophenetic_index",
     "diameter",
     "area_per_pair_index",
@@ -134,6 +135,7 @@ def clade_size(v):
         return v.clade_size
     except:
         raise Exception("Run precompute_clade_sizes(tree) first")
+
 
 def precompute_clade_sizes(tree):
     for node in tree.traverse("postorder"):
@@ -391,6 +393,17 @@ def absolute(metric_name, tree):
         case "modified_cherry_index":
             return clade_size(tree) - 2 * absolute("cherry_index", tree) 
 
+        case "d_index":
+            n = clade_size(tree)
+            f_n = Counter([clade_size(node) for node in tree.traverse()])
+            s = 0
+            for z in range(2, n):
+                p_n = (n / (n - 1)) * (2 / (z * (z + 1)))
+                s += z * abs(f_n[z] - p_n)
+            s += n * abs(f_n[n] - (1 / (n - 1)))
+            return s
+
+
         case "cophenetic_index":
             s = 0
             for node in tree.iter_descendants("postorder"):
@@ -634,6 +647,9 @@ def maximum(metric_name, n):
         case "modified_cherry_index":
             return n - 2
 
+        case "d_index":
+            return float("nan")
+
         case "cophenetic_index":
             return math.comb(n, 3)
 
@@ -766,6 +782,9 @@ def minimum(metric_name, n):
 
         case "modified_cherry_index":
             return n % 2 
+
+        case "d_index":
+            return float("nan")
 
         case "cophenetic_index":
             factorial = 1
