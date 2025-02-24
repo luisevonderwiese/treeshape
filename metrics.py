@@ -16,6 +16,7 @@ absolute_metrics =[
     "maximum_width",
     "maxdiff_widths",
     "modified_maxdiff_widths",
+    "max_width_over_max_depth",
     "s_roof_shape",
     "cherry_index",
     "modified_cherry_index",
@@ -50,6 +51,7 @@ balance_metrics =[
     "maximum_width",
     "maxdiff_widths",
     "modified_maxdiff_widths",
+    "max_width_over_max_depth",
     "cherry_index",
     "furnas_rank"]
 
@@ -366,6 +368,9 @@ def absolute(metric_name, tree):
                 res = max(res, diff)
             return res
 
+        case "max_width_over_max_depth":
+            return absolute("maximum_width", tree) / absolute("height", tree)
+
         case "s_roof_shape":
             s = 0
             for node in tree.traverse("postorder"):
@@ -617,6 +622,9 @@ def maximum(metric_name, n):
         case "modified_maxdiff_widths":
             return float('nan')
 
+        case "max_width_over_max_depth":
+            return float('nan')
+
         case "s_roof_shape":
             return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
 
@@ -746,6 +754,9 @@ def minimum(metric_name, n):
         case "modified_maxdiff_widths":
             return float('nan')
             #return 1 #problem with maximum
+
+        case "max_width_over_max_depth":
+            return float('nan')
 
         case "s_roof_shape":
             return math.log2(n - 1) #only tight for general trees
