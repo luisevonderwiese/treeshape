@@ -48,7 +48,8 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 31 / 12,
         "mean_I_w" : 1,
         "total_I_w" : 3,
-        "colijn_plazotta_rank" : 68,
+        "colijn_plazotta_rank" : 68,        
+        "furnas_rank" : 1,
         "treeness" : 0.4,
         "stemminess" : 62 / 315}
 
@@ -88,6 +89,7 @@ class TestMetrics(unittest.TestCase):
         "mean_I_w" : 0.55,
         "total_I_w" : 1.65,
         "colijn_plazotta_rank" : 30,
+        "furnas_rank" : 2,
         "treeness" : 0.4,
         "stemminess" : 29/126}
 
@@ -127,6 +129,7 @@ class TestMetrics(unittest.TestCase):
         "mean_I_w" : 5 / 11,
         "total_I_w" : 10 / 11,
         "colijn_plazotta_rank" : 17,
+        "furnas_rank" : 3,
         "treeness" : 0.4,
         "stemminess" : 44/180}
 
@@ -166,6 +169,7 @@ class TestMetrics(unittest.TestCase):
         "mean_I_w" : 14 / 19,
         "total_I_w" : 28 / 19,
         "colijn_plazotta_rank" :  13,
+        "furnas_rank" : 4,
         "treeness" : 0.4,
         "stemminess" : 106/420}
 
@@ -205,6 +209,7 @@ class TestMetrics(unittest.TestCase):
         "mean_I_w" : 5 / 28,
         "total_I_w" : 5 / 14,
         "colijn_plazotta_rank" : 9,
+        "furnas_rank" : 5,
         "treeness" : 0.4,
         "stemminess" : 8 / 28}
 
@@ -244,6 +249,7 @@ class TestMetrics(unittest.TestCase):
         "mean_I_w" : 0,
         "total_I_w" : 0,
         "colijn_plazotta_rank" : 7,
+        "furnas_rank" : 6,
         "treeness" : 0.4,
         "stemminess" : 16 / 60}
 

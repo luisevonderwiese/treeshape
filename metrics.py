@@ -39,6 +39,7 @@ absolute_metrics =[
     "mean_I_w",
     "total_I_w",
     "colijn_plazotta_rank",
+    "furnas_rank",
     "treeness",
     "stemminess"]
 
@@ -49,7 +50,8 @@ balance_metrics =[
     "maximum_width",
     "maxdiff_widths",
     "modified_maxdiff_widths",
-    "cherry_index"]
+    "cherry_index",
+    "furnas_rank"]
 
 
 imbalance_metrics =[
@@ -102,6 +104,7 @@ relative_metrics = [
     "stairs1",
     "rogers_j_index",
     "symmetry_nodes_index",
+    "furnas_rank",
     "treeness",
     "stemminess"]
 #============ GENERAL ============
@@ -185,6 +188,37 @@ def prob_recursive(tree):
         child.add_feature("prob", p)
         if not child.is_leaf():
             prob_recursive(child)
+
+
+def we(x):
+    lookup = [0, 1, 1, 1, 2, 3, 6, 11, 23, 46, 98, 207, 451, 983, 2179, 4850, 10905, 24631, 56011]
+    if x >= len(lookup):
+        raise Exception("WE Number not provided for " + str(x))
+    return lookup[x]
+
+def furnas_ranks(tree):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("furnas", 1)
+            continue
+        c = node.children
+        if c[0].clade_size <= c[1].clade_size:
+            f_l = c[0].furnas
+            alpha = c[0].clade_size
+            f_r = c[1].furnas
+            beta = c[1].clade_size
+        else:
+            f_l = c[1].furnas
+            alpha = c[1].clade_size
+            f_r = c[0].furnas
+            beta = c[0].clade_size
+        s = 0
+        for i in range(1, alpha):
+            s += we(i) * we(node.clade_size - i)
+        s += (f_l - 1) * we(beta) + f_r
+        if alpha == beta:
+            s -= (f_l * f_l - f_l) / 2
+        node.add_feature("furnas", s)
 
 
 def isomorphic(v1, v2):
@@ -477,6 +511,10 @@ def absolute(metric_name, tree):
             else:
                 return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
+        case "furnas_rank":
+            furnas_ranks(tree)
+            return tree.furnas
+
         case "treeness":
             all_brlens = 0
             internal_brlens = 0
@@ -652,6 +690,9 @@ def maximum(metric_name, n):
         case "colijn_plazotta_rank":
             return float('nan')
 
+        case "furnas_rank":
+            return we(n)
+
         case "treeness":
             return 1 #pseudo bound
 
@@ -804,6 +845,9 @@ def minimum(metric_name, n):
 
         case "colijn_plazotta_rank":
             return float('nan')
+
+        case "furnas_rank":
+            return 1
 
         case "treeness":
             return 0 #pseudo bound
