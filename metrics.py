@@ -157,15 +157,12 @@ def precompute(tree):
     precompute_depths(tree)
     
 
-def height(tree):
-    return max(leaf_depths(tree))
-
 def width(tree, i):
     leaf_depths(tree).count(i)
 
 def leaf_depths(tree):
     try:
-        return [l.depth - tree.depth for l in tree.iter_leaves()]
+        return [l.depth for l in tree.iter_leaves()]
     except:
         raise Exception("Run precompute_depths(tree) first")
 
@@ -388,9 +385,16 @@ def absolute(metric_name, tree):
 
         case "B_1_index":
             s = 0
+            tree
             for node in tree.iter_descendants("postorder"):
-                if not node.is_leaf():
-                    s += 1 / height(node)
+                if node.is_leaf():
+                    node.add_feature("height", 0)
+                    continue
+                c = node.children
+                assert(len(c) == 2)
+                h = 1 + max(c[0].height, c[1].height)
+                node.add_feature("height", h)
+                s += 1/ h
             return s
 
         case "B_2_index":
@@ -403,7 +407,7 @@ def absolute(metric_name, tree):
             return - s
 
         case "height":
-            return height(tree)
+            return max(leaf_depths(tree)) 
 
         case "maximum_width":
             return max(widths(tree).values())
