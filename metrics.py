@@ -197,7 +197,12 @@ def prob_recursive(tree):
 
 
 def we(x):
-    lookup = [0, 1, 1, 1, 2, 3, 6, 11, 23, 46, 98, 207, 451, 983, 2179, 4850, 10905, 24631, 56011]
+    lookup = [0, 1, 1, 1, 2, 3, 6, 11, 23, 46, 98, 207, 451, \
+            983, 2179, 4850, 10905, 24631, 56011, 127912, \
+            293547, 676157, 1563372, 3626149, 8436379, \
+            19680277, 46026618, 107890609, 253450711, \
+            596572387, 1406818759, 3323236238, 7862958391, \
+            18632325319, 44214569100]
     if x >= len(lookup):
         raise Exception("WE Number not provided for " + str(x))
     return lookup[x]
@@ -220,8 +225,16 @@ def furnas_ranks(tree):
             beta = c[0].clade_size
         s = 0
         for i in range(1, alpha):
-            s += we(i) * we(node.clade_size - i)
-        s += (f_l - 1) * we(beta) + f_r
+            try:
+                s += we(i) * we(node.clade_size - i)
+            except:
+                node.add_feature("furnas", float("nan"))
+                continue
+        try:
+            s += (f_l - 1) * we(beta) + f_r
+        except:
+            node.add_feature("furnas", float("nan"))
+            continue
         if alpha == beta:
             s -= (f_l * f_l - f_l) / 2
         node.add_feature("furnas", s)
@@ -731,7 +744,10 @@ def maximum(metric_name, n):
             return float('nan')
 
         case "furnas_rank":
-            return we(n)
+            try:
+                return we(n)
+            except:
+                return float("nan")
 
         case "treeness":
             return 1 #pseudo bound
