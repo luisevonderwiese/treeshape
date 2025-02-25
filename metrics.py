@@ -56,7 +56,7 @@ R_metrics = [
         "colless_index",
         "corrected_colless_index",
         "quadratic_colless_index",
-        "colijn_plazotta_rank",
+       # "colijn_plazotta_rank",
         "I_2_index",
         "furnas_rank",
         "mean_I",
