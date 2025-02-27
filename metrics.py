@@ -152,26 +152,27 @@ relative_metrics = [
     "stemminess"]
 #============ GENERAL ============
 
-def precompute(tree):
-    precompute_clade_sizes(tree)
-    precompute_depths(tree)
-    
-
 def width(tree, i):
     leaf_depths(tree).count(i)
 
 def leaf_depths(tree):
-    try:
-        return [l.depth for l in tree.iter_leaves()]
-    except:
-        raise Exception("Run precompute_depths(tree) first")
+    return [depth(tree, l) for l in tree.iter_leaves()]
 
 
-def clade_size(v):
+def clade_size(tree, v):
     try:
         return v.clade_size
     except:
-        raise Exception("Run precompute_clade_sizes(tree) first")
+        precompute_clade_sizes(tree)
+        return v.clade_size
+
+def depth(tree, v):
+    try:
+        return v.depth
+    except:
+        precompute_depths(tree)
+        return v.depth
+
 
 
 def precompute_clade_sizes(tree):
@@ -198,12 +199,13 @@ def depths_recursive(tree):
             depths_recursive(child)
 
 def widths(tree):
-    return Counter([v.depth for v in tree.traverse("postorder")])
+    return Counter([depth(tree, v) for v in tree.traverse("postorder")])
+
 
 
 def connecting_path_length(tree, v1, v2):
     ancestor = tree.get_common_ancestor(v1, v2)
-    return v1.depth + v2.depth - 2 * ancestor.depth
+    return depth(tree, v1) + depth(tree, v2) - 2 * depth(tree, ancestor)
 
 def inner_nodes(tree):
     inner_nodes = []
@@ -219,17 +221,30 @@ def balance_index(tree, v):
     else:
         c = v.children
         assert(len(c) == 2)
-        return abs(clade_size(c[0]) - clade_size(c[1]))
+        return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
 
-def prob_recursive(tree):
+def precompute_probs(tree):
+    tree.add_feature("prob", 1)
+    probs_recursive(tree)
+
+def probs_recursive(tree):
     c = tree.children
     assert(len(c) == 2)
     p = tree.prob/2
     for child in c:
         child.add_feature("prob", p)
         if not child.is_leaf():
-            prob_recursive(child)
+            probs_recursive(child)
 
+def precompute_heights(tree):
+    for node in tree.iter_descendants("postorder"):
+        if node.is_leaf():
+            node.add_feature("height", 0)
+            continue
+        c = node.children
+        assert(len(c) == 2)
+        h = 1 + max(c[0].height, c[1].height)
+        node.add_feature("height", h)
 
 def we(x):
     lookup = [0, 1, 1, 1, 2, 3, 6, 11, 23, 46, 98, 207, 451, \
@@ -248,20 +263,20 @@ def furnas_ranks(tree):
             node.add_feature("furnas", 1)
             continue
         c = node.children
-        if c[0].clade_size <= c[1].clade_size:
+        if clade_size(tree, c[0]) <= clade_size(tree, c[1]):
             f_l = c[0].furnas
-            alpha = c[0].clade_size
+            alpha = clade_size(tree, c[0])
             f_r = c[1].furnas
-            beta = c[1].clade_size
+            beta = clade_size(tree, c[1])
         else:
             f_l = c[1].furnas
-            alpha = c[1].clade_size
+            alpha = clade_size(tree, c[1])
             f_r = c[0].furnas
-            beta = c[0].clade_size
+            beta = clade_size(tree, c[0])
         s = 0
         for i in range(1, alpha):
             try:
-                s += we(i) * we(node.clade_size - i)
+                s += we(i) * we(clade_size(tree, node) - i)
             except:
                 node.add_feature("furnas", float("nan"))
                 continue
@@ -286,32 +301,32 @@ def isomorphic(v1, v2):
 
 
 
-def I(v):
+def I(tree, v):
     assert(not v.is_leaf())
     c = v.children
     assert(len(c) == 2)
-    n_v1 = max(clade_size(c[0]), clade_size(c[1]))
-    n_v = clade_size(v)
+    n_v1 = max(clade_size(tree, c[0]), clade_size(tree, c[1]))
+    n_v = clade_size(tree, v)
     half = math.ceil(n_v / 2.0)
     if (n_v - 1 - half) == 0:
         return 0
     return (n_v1 - half) / (n_v - 1 - half)
 
-def I_prime(v):
-    I_value = I(v)
-    n_v = clade_size(v)
+def I_prime(tree, v):
+    I_value = I(tree, v)
+    n_v = clade_size(tree, v)
     if n_v > 0 and n_v % 2 == 0:
         I_value *= (n_v - 1) / n_v
     return I_value
 
 
-def I_weight(v):
-    n_v = clade_size(v)
+def I_weight(tree, v):
+    n_v = clade_size(tree, v)
     if n_v % 2 == 1:
         return 1
     if n_v == 0:
         return 0
-    I_v = I(v)
+    I_v = I(tree, v)
     if I_v == 0:
         return (2 * (n_v - 1)) / n_v
     else:
@@ -320,25 +335,25 @@ def I_weight(v):
 def I_weight_sum(tree):
     weights = []
     for node in tree.traverse("postorder"):
-        if clade_size(node) >= 4:
-            weights.append(I_weight(node))
+        if clade_size(tree, node) >= 4:
+            weights.append(I_weight(tree, node))
     return sum(weights) / len(weights)
 
-def I_w(v, sw):
-    return (I_weight(v) * I(v)) / sw
+def I_w(tree, v, sw):
+    return (I_weight(tree, v) * I(tree, v)) / sw
 
 
 def I_values(tree, mode, sw = 0):
     assert(mode in ["I", "I_prime", "I_w"])
     values = []
     for node in tree.traverse("postorder"):
-        if clade_size(node) >= 4:
+        if clade_size(tree, node) >= 4:
             if mode == "I":
-                values.append(I(node))
+                values.append(I(tree, node))
             elif mode == "I_prime":
-                values.append(I_prime(node))
+                values.append(I_prime(tree, node))
             elif mode == "I_w":
-                values.append(I_w(node, sw))
+                values.append(I_w(tree, node, sw))
     return values
 
 
@@ -370,37 +385,37 @@ def absolute(metric_name, tree):
             return sum(leaf_depths(tree))
 
         case "total_path_length":
-            return sum([node.depth for node in tree.traverse("postorder")])
+            return sum([depth(tree, node) for node in tree.traverse("postorder")])
 
         case "total_internal_path_length":
             s = 0
             for node in tree.iter_descendants("postorder"):
                 if not node.is_leaf():
-                    s += node.depth
+                    s += depth(tree, node)
             return s
 
         case "average_vertex_depth":
-            depths = [node.depth for node in tree.traverse("postorder")]
+            depths = [depth(tree, node) for node in tree.traverse("postorder")]
             return sum(depths) / len(depths)
 
         case "B_1_index":
             s = 0
-            tree
+            try: #check if heights already precomputed
+                tree.height
+            except:
+                precompute_heights(tree)
             for node in tree.iter_descendants("postorder"):
                 if node.is_leaf():
-                    node.add_feature("height", 0)
                     continue
-                c = node.children
-                assert(len(c) == 2)
-                h = 1 + max(c[0].height, c[1].height)
-                node.add_feature("height", h)
-                s += 1/ h
+                s += 1/ node.height
             return s
 
         case "B_2_index":
             s = 0
-            tree.add_feature("prob", 1)
-            prob_recursive(tree)
+            try: #check if probs are already precomputed
+                tree.prob
+            except:
+                precompute_probs(tree)
             for leaf in tree.iter_leaves():
                 p_leaf = leaf.prob
                 s += p_leaf * math.log2(p_leaf)
@@ -435,7 +450,7 @@ def absolute(metric_name, tree):
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
-                    s += math.log2(clade_size(node) - 1)
+                    s += math.log2(clade_size(tree, node) - 1)
             return s
 
         case "cherry_index":
@@ -449,11 +464,11 @@ def absolute(metric_name, tree):
             return cnt
 
         case "modified_cherry_index":
-            return clade_size(tree) - 2 * absolute("cherry_index", tree) 
+            return clade_size(tree, tree) - 2 * absolute("cherry_index", tree) 
 
         case "d_index":
-            n = clade_size(tree)
-            f_n = Counter([clade_size(node) for node in tree.traverse()])
+            n = clade_size(tree, tree)
+            f_n = Counter([clade_size(tree, node) for node in tree.traverse()])
             s = 0
             for z in range(2, n):
                 p_n = (n / (n - 1)) * (2 / (z * (z + 1)))
@@ -466,7 +481,7 @@ def absolute(metric_name, tree):
             s = 0
             for node in tree.iter_descendants("postorder"):
                 if not node.is_leaf():
-                    s += math.comb(clade_size(node), 2)
+                    s += math.comb(clade_size(tree, node), 2)
             return s
 
         case "diameter":
@@ -480,17 +495,17 @@ def absolute(metric_name, tree):
 
         
         case "area_per_pair_index":
-            n = clade_size(tree)
+            n = clade_size(tree, tree)
             s = absolute("sackin_index", tree)
             c = absolute("cophenetic_index", tree)
             return  2 / n * s - 4 / (n * (n - 1)) * c
 
         case "root_imbalance":
             c = tree.children
-            return max(clade_size(c[0]), clade_size(c[1])) / clade_size(tree)
+            return max(clade_size(tree, c[0]), clade_size(tree, c[1])) / clade_size(tree, tree)
 
         case "I_root":
-            return I(tree)
+            return I(tree, tree)
 
         case "colless_index":
             s = 0
@@ -512,17 +527,17 @@ def absolute(metric_name, tree):
             return s
 
         case "I_2_index":
-            n = clade_size(tree)
+            n = clade_size(tree, tree)
             s = 0
             for node in tree.traverse("postorder"):
-                n_v = clade_size(node)
+                n_v = clade_size(tree, node)
                 if n_v > 2:
                     b = balance_index(tree, node)
                     s += b / (n_v - 2)
             return s / (n - 2)
 
         case "stairs1":
-            return absolute("rogers_j_index", tree) /  (clade_size(tree)- 1)       
+            return absolute("rogers_j_index", tree) /  (clade_size(tree, tree)- 1)       
 
         case "stairs2":
             s = 0
@@ -530,10 +545,10 @@ def absolute(metric_name, tree):
                 if node.is_leaf():
                     continue
                 c = node.children
-                n0 = clade_size(c[0])
-                n1 = clade_size(c[1])
+                n0 = clade_size(tree, c[0])
+                n1 = clade_size(tree, c[1])
                 s += min(n0, n1) / max(n0, n1)
-            return s / (clade_size(tree) - 1)
+            return s / (clade_size(tree, tree) - 1)
 
         case "rogers_j_index":
             s = 0
@@ -582,11 +597,11 @@ def absolute(metric_name, tree):
                     continue
                 c = node.children
                 assert(len(c) == 2)
-                s += math.comb(clade_size(c[0]), 2) * math.comb(clade_size(c[1]), 2)
+                s += math.comb(clade_size(tree, c[0]), 2) * math.comb(clade_size(tree, c[1]), 2)
             return s * 3
 
         case "colijn_plazotta_rank":
-            if clade_size(tree) == 1:
+            if clade_size(tree, tree) == 1:
                 return 1
             c = tree.children
             assert(len(c) == 2)
@@ -598,8 +613,11 @@ def absolute(metric_name, tree):
                 return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
         case "furnas_rank":
-            furnas_ranks(tree)
-            return tree.furnas
+            try:
+                return tree.furnas #check if furnas ranks already precomputed
+            except:
+                furnas_ranks(tree)
+                return tree.furnas
 
         case "treeness":
             all_brlens = 0
@@ -634,7 +652,7 @@ def relative(metric_name, tree):
         print(metric_name, " is not an implemented relative metric!")
         return
     v = absolute(metric_name, tree)
-    n = clade_size(tree)
+    n = clade_size(tree, tree)
     min_v = minimum(metric_name, n)
     max_v = maximum(metric_name, n)
     if max_v == min_v:
