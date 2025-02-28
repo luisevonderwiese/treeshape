@@ -14,12 +14,13 @@ df = pd.DataFrame(tree_names, columns=["tree_name"])
 
 for i, row in df.iterrows():
     tree =  Tree(os.path.join(trees_dir, row["tree_name"]))
-    if not metrics.is_bifurcating(tree):
-        print("!!!!!!!!!!!!!", row["tree_name"], "not bifurcating")
-        continue
     print(row["tree_name"])
     for metric_name in metrics.relative_metrics:
         print(metric_name)
-        df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree), 3)
+        try:
+            df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree), 3)
+        except Exception as e:
+            print(e)
+            continue
 print(df)
 df.to_csv("data/virus/metrics.csv")
