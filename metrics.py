@@ -1,4 +1,3 @@
-from ete3 import Tree
 import math
 import numpy as np
 from collections import Counter
@@ -56,7 +55,7 @@ R_metrics = [
         "colless_index",
         "corrected_colless_index",
         "quadratic_colless_index",
-       # "colijn_plazotta_rank",
+        # "colijn_plazotta_rank",
         "I_2_index",
         "furnas_rank",
         "mean_I",
@@ -152,30 +151,26 @@ relative_metrics = [
     "stemminess"]
 #============ GENERAL ============
 
-def width(tree, i):
-    leaf_depths(tree).count(i)
-
 def leaf_depths(tree):
-    return [depth(tree, l) for l in tree.iter_leaves()]
-
+    return [depth(tree, leaf) for leaf in tree.iter_leaves()]
 
 def children(v):
     c = v.children
     if len(c) != 2:
-        raise Exception("Metric only defined for binary trees")
+        raise ValueError("Metric only defined for binary trees")
     return c
 
 def clade_size(tree, v):
     try:
         return v.clade_size
-    except:
+    except AttributeError:
         precompute_clade_sizes(tree)
         return v.clade_size
 
 def depth(tree, v):
     try:
         return v.depth
-    except:
+    except AttributeError:
         precompute_depths(tree)
         return v.depth
 
@@ -218,9 +213,8 @@ def inner_nodes(tree):
 def balance_index(tree, v):
     if v.is_leaf():
         return 0
-    else:
-        c = children(v)
-        return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
+    c = children(v)
+    return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
 
 def precompute_probs(tree):
     tree.add_feature("prob", 1)
@@ -251,7 +245,7 @@ def we(x):
             596572387, 1406818759, 3323236238, 7862958391, \
             18632325319, 44214569100]
     if x >= len(lookup):
-        raise Exception("WE Number not provided for " + str(x))
+        raise NotImplementedError("WE Number not provided for " + str(x))
     return lookup[x]
 
 def furnas_ranks(tree):
@@ -274,12 +268,12 @@ def furnas_ranks(tree):
         for i in range(1, alpha):
             try:
                 s += we(i) * we(clade_size(tree, node) - i)
-            except:
+            except NotImplementedError:
                 node.add_feature("furnas", float("nan"))
                 continue
         try:
             s += (f_l - 1) * we(beta) + f_r
-        except:
+        except NotImplementedError:
             node.add_feature("furnas", float("nan"))
             continue
         if alpha == beta:
@@ -298,8 +292,7 @@ def isomorphic(v1, v2):
 
 
 
-def I(tree, v):
-    assert(not v.is_leaf())
+def I_value(tree, v):
     c = children(v)
     n_v1 = max(clade_size(tree, c[0]), clade_size(tree, c[1]))
     n_v = clade_size(tree, v)
@@ -309,11 +302,11 @@ def I(tree, v):
     return (n_v1 - half) / (n_v - 1 - half)
 
 def I_prime(tree, v):
-    I_value = I(tree, v)
+    I_v = I_value(tree, v)
     n_v = clade_size(tree, v)
     if n_v > 0 and n_v % 2 == 0:
-        I_value *= (n_v - 1) / n_v
-    return I_value
+        I_v *= (n_v - 1) / n_v
+    return I_v
 
 
 def I_weight(tree, v):
@@ -322,11 +315,10 @@ def I_weight(tree, v):
         return 1
     if n_v == 0:
         return 0
-    I_v = I(tree, v)
+    I_v = I_value(tree, v)
     if I_v == 0:
         return (2 * (n_v - 1)) / n_v
-    else:
-        return (n_v - 1) / n_v
+    return (n_v - 1) / n_v
 
 def I_weight_sum(tree):
     weights = []
@@ -336,7 +328,7 @@ def I_weight_sum(tree):
     return sum(weights) / len(weights)
 
 def I_w(tree, v, sw):
-    return (I_weight(tree, v) * I(tree, v)) / sw
+    return (I_weight(tree, v) * I_value(tree, v)) / sw
 
 
 def I_values(tree, mode, sw = 0):
@@ -345,7 +337,7 @@ def I_values(tree, mode, sw = 0):
     for node in tree.traverse("postorder"):
         if clade_size(tree, node) >= 4:
             if mode == "I":
-                values.append(I(tree, node))
+                values.append(I_value(tree, node))
             elif mode == "I_prime":
                 values.append(I_prime(tree, node))
             elif mode == "I_w":
@@ -366,9 +358,8 @@ def is_bifurcating(tree):
 #============ ABSOLUTE METRICS ============
 
 def absolute(metric_name, tree):
-    if not metric_name in absolute_metrics:
-        print(metric_name, " is not an implemented absolute metric!")
-        return
+    if metric_name not in absolute_metrics:
+        raise NotImplementedError(metric_name, " is not an implemented absolute metric")
     match metric_name:
         case "average_leaf_depth":
             depths = leaf_depths(tree)
@@ -398,7 +389,7 @@ def absolute(metric_name, tree):
             s = 0
             try: #check if heights already precomputed
                 tree.height
-            except:
+            except AttributeError:
                 precompute_heights(tree)
             for node in tree.iter_descendants("postorder"):
                 if node.is_leaf():
@@ -410,7 +401,7 @@ def absolute(metric_name, tree):
             s = 0
             try: #check if probs are already precomputed
                 tree.prob
-            except:
+            except AttributeError:
                 precompute_probs(tree)
             for leaf in tree.iter_leaves():
                 p_leaf = leaf.prob
@@ -481,7 +472,7 @@ def absolute(metric_name, tree):
             return s
 
         case "diameter":
-            leaves = [l for l in tree.iter_leaves()]
+            leaves = list(tree.iter_leaves())
             m = 0
             for i, node1 in enumerate(leaves):
                 for j in range(i):
@@ -501,7 +492,7 @@ def absolute(metric_name, tree):
             return max(clade_size(tree, c[0]), clade_size(tree, c[1])) / clade_size(tree, tree)
 
         case "I_root":
-            return I(tree, tree)
+            return I_value(tree, tree)
 
         case "colless_index":
             s = 0
@@ -603,13 +594,12 @@ def absolute(metric_name, tree):
             cp2 = absolute("colijn_plazotta_rank", c[1])
             if cp1 >= cp2:
                 return 0.5 * cp1 * (cp1 - 1) + cp2 + 1
-            else:
-                return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
+            return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
         case "furnas_rank":
             try:
                 return tree.furnas #check if furnas ranks already precomputed
-            except:
+            except AttributeError:
                 furnas_ranks(tree)
                 return tree.furnas
 
@@ -642,9 +632,8 @@ def absolute(metric_name, tree):
 
 
 def relative(metric_name, tree):
-    if not metric_name in relative_metrics:
-        print(metric_name, " is not an implemented relative metric!")
-        return
+    if metric_name not in relative_metrics:
+        raise NotImplementedError(metric_name, " is not an implemented relative metric")
     v = absolute(metric_name, tree)
     n = clade_size(tree, tree)
     min_v = minimum(metric_name, n)
@@ -652,21 +641,15 @@ def relative(metric_name, tree):
     if max_v == min_v:
         return float('nan')
     if max_v - v < -0.00001:
-        print("Value above max for", metric_name)
-        print("max_v:", str(max_v))
-        print("v:", str(v))
-        assert(False)
+        raise ValueError("Value above max for", metric_name)
     if v - min_v < -0.00001:
-        print("Value below min for", metric_name)
-        print("min_v:", str(min_v))
-        print("v:", str(v))
-        assert(False)
+        raise ValueError("Value below min for", metric_name)
     return (v - min_v) / (max_v - min_v)
 
 
 def relative_normalized(metric_name, tree):
     rel = relative(metric_name, tree)
-    if rel != rel:
+    if math.isnan(rel):
         return rel
     if metric_name in balance_metrics:
         return 1 - rel
@@ -800,7 +783,7 @@ def maximum(metric_name, n):
         case "furnas_rank":
             try:
                 return we(n)
-            except:
+            except NotImplementedError:
                 return float("nan")
 
         case "treeness":
@@ -825,16 +808,16 @@ def minimum(metric_name, n):
             return (x + 3) * n - math.pow(2, x + 2)
 
         case "total_path_length":
-            l = math.floor(math.log2(n))
-            return 2 * l * n - math.pow(2, l + 2) + 2 * n + 2
+            log_val = math.floor(math.log2(n))
+            return 2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2
 
         case "total_internal_path_length":
-            l = math.floor(math.log2(n))
-            return l * n - math.pow(2, l + 1) + 2
+            log_val = math.floor(math.log2(n))
+            return log_val * n - math.pow(2, log_val + 1) + 2
 
         case "average_vertex_depth":
-            l = math.floor(math.log2(n))
-            return (2 * l * n - math.pow(2, l + 2) + 2 * n + 2) / (2 * n -1)
+            log_val = math.floor(math.log2(n))
+            return (2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2) / (2 * n - 1)
 
         case "B_1_index":
             return float('nan')
