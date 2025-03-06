@@ -153,18 +153,12 @@ relative_metrics = [
     "maximum_width",
     "maxdiff_widths",
     "modified_maxdiff_widths",
-    "diameter",
+    # "diameter",
     "rooted_quartet_index"]
 #============ GENERAL ============
 
 def leaf_depths(tree):
     return [depth(tree, leaf) for leaf in tree.iter_leaves()]
-
-def children(v):
-    c = v.children
-    if len(c) != 2:
-        raise ValueError("Metric only defined for binary trees")
-    return c
 
 def clade_size(tree, v):
     try:
@@ -219,7 +213,8 @@ def inner_nodes(tree):
 def balance_index(tree, v):
     if v.is_leaf():
         return 0
-    c = children(v)
+    c = v.children
+    assert (len(c) == 2)
     return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
 
 def precompute_probs(tree):
@@ -259,7 +254,8 @@ def furnas_ranks(tree):
         if node.is_leaf():
             node.add_feature("furnas", 1)
             continue
-        c = children(node)
+        c = node.children
+        assert (len(c) == 2)
         if clade_size(tree, c[0]) <= clade_size(tree, c[1]):
             f_l = c[0].furnas
             alpha = clade_size(tree, c[0])
@@ -292,14 +288,17 @@ def isomorphic(v1, v2):
         return v2.is_leaf()
     if v2.is_leaf():
         return False
-    c1 = children(v1)
-    c2 = children(v2)
+    c1 = v1.children
+    assert (len(c1) == 2)
+    c2 = v2.children
+    assert (len(c2) == 2)
     return (isomorphic(c1[0], c2[0]) and isomorphic(c1[1], c2[1])) or (isomorphic(c1[0], c2[1]) and isomorphic(c1[1], c2[0]))
 
 
 
 def I_value(tree, v):
-    c = children(v)
+    c = v.children
+    assert (len(c) == 2)
     n_v1 = max(clade_size(tree, c[0]), clade_size(tree, c[1]))
     n_v = clade_size(tree, v)
     half = math.ceil(n_v / 2.0)
@@ -360,9 +359,9 @@ def lX(n, Xset):
     P = [sum([math.pow(val, x) for val in Xset]) for x in range(1, n+1)]
     mat = [[0 for _ in range(n)] for __ in range(n)]
     for x in range(n):
-        mat[x, :x + 1] = P[:x+1][::-1]
-    for x in range(n):
-        mat[x, x+1] = x + 1
+        mat[x][:x + 1] = P[:x+1][::-1]
+    for x in range(n - 1):
+        mat[x][x+1] = x + 1
     return np.linalg.det(mat) / math.factorial(n)
 
 def precompute_rqi(tree):
@@ -386,10 +385,18 @@ def precompute_rqi(tree):
         rqi += q[1] * (0.5 * E3 * lX(1, ccs) - 2 * E4 - 1.5 * E3) # cherry + 2
         node.add_feature("rqi", rqi)
 
+
 def is_bifurcating(tree):
+    try: #check if heights already precomputed
+        return tree.bifurcating
+    except AttributeError:
+        tree.add_feature("bifurcating", bifurcating_recursive(tree))
+        return tree.bifurcating
+
+def bifurcating_recursive(tree):
     c = tree.children
     if len(c) == 2:
-        return is_bifurcating(c[0]) and is_bifurcating(c[1])
+        return bifurcating_recursive(c[0]) and bifurcating_recursive(c[1])
     if len(c) == 0:
         return True
     return False
@@ -475,6 +482,8 @@ def absolute(metric_name, tree):
             return absolute("maximum_width", tree) / absolute("height", tree)
 
         case "s_roof_shape":
+            if not is_bifurcating(tree):
+                return float("nan")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -529,13 +538,20 @@ def absolute(metric_name, tree):
             return  2 / n * s - 4 / (n * (n - 1)) * c
 
         case "root_imbalance":
-            c = children(tree)
+            if not is_bifurcating(tree):
+                return float("nan")
+            c = tree.children
+            assert (len(c) == 2)
             return max(clade_size(tree, c[0]), clade_size(tree, c[1])) / clade_size(tree, tree)
 
         case "I_root":
+            if not is_bifurcating(tree):
+                return float("nan")
             return I_value(tree, tree)
 
         case "colless_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -543,10 +559,14 @@ def absolute(metric_name, tree):
             return s
 
         case "corrected_colless_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             n = len(tree)
             return (2 * absolute("colless_index", tree)) / ((n-1) * (n-2))
 
         case "quadratic_colless_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -555,6 +575,8 @@ def absolute(metric_name, tree):
             return s
 
         case "I_2_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             n = clade_size(tree, tree)
             s = 0
             for node in tree.traverse("postorder"):
@@ -565,20 +587,27 @@ def absolute(metric_name, tree):
             return s / (n - 2)
 
         case "stairs1":
+            if not is_bifurcating(tree):
+                return float("nan")
             return absolute("rogers_j_index", tree) /  (clade_size(tree, tree)- 1)       
 
         case "stairs2":
+            if not is_bifurcating(tree):
+                return float("nan")
             s = 0
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
                     continue
-                c = children(node)
+                c = node.children
+                assert (len(c) == 2)
                 n0 = clade_size(tree, c[0])
                 n1 = clade_size(tree, c[1])
                 s += min(n0, n1) / max(n0, n1)
             return s / (clade_size(tree, tree) - 1)
 
         case "rogers_j_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -587,34 +616,49 @@ def absolute(metric_name, tree):
             return s
 
         case "symmetry_nodes_index":
+            if not is_bifurcating(tree):
+                return float("nan")
             cnt = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
-                    c = children(node)
+                    c = node.children
+                    assert (len(c) == 2)
                     if not isomorphic(c[0], c[1]):
                         cnt += 1
             return cnt
 
         case "mean_I":
+            if not is_bifurcating(tree):
+                return float("nan")
             values = I_values(tree, "I")
             return sum(values) / len(values)
 
         case "total_I":
+            if not is_bifurcating(tree):
+                return float("nan")
             return sum(I_values(tree, "I"))
 
         case "mean_I_prime":
+            if not is_bifurcating(tree):
+                return float("nan")
             values = I_values(tree, "I_prime")
             return sum(values) / len(values)
 
         case "total_I_prime":
+            if not is_bifurcating(tree):
+                return float("nan")
             return sum(I_values(tree, "I_prime"))
 
         case "mean_I_w":
+            if not is_bifurcating(tree):
+                return float("nan")
             sw = I_weight_sum(tree)
             values = I_values(tree, "I_w", sw)
             return sum(values) / len(values)
 
         case "total_I_w":
+            if not is_bifurcating(tree):
+                return float("nan")
             sw = I_weight_sum(tree)
             return sum(I_values(tree, "I_w", sw))
 
@@ -626,9 +670,12 @@ def absolute(metric_name, tree):
                 return tree.rqi
 
         case "colijn_plazotta_rank":
+            if not is_bifurcating(tree):
+                return float("nan")
             if clade_size(tree, tree) == 1:
                 return 1
-            c = children(tree)
+            c = tree.children
+            assert (len(c) == 2)
             cp1 = absolute("colijn_plazotta_rank", c[0])
             cp2 = absolute("colijn_plazotta_rank", c[1])
             if cp1 >= cp2:
@@ -636,6 +683,8 @@ def absolute(metric_name, tree):
             return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
         case "furnas_rank":
+            if not is_bifurcating(tree):
+                return float("nan")
             try:
                 return tree.furnas #check if furnas ranks already precomputed
             except AttributeError:
@@ -657,12 +706,14 @@ def absolute(metric_name, tree):
             for node in tree.iter_descendants("postorder"):
                 d = node.dist
                 if node.is_leaf():
-                    node.add_features(sum_below=d)
+                    node.add_feature("sum_below", d)
                 else:
                     c = node.children
                     s = d + sum([child.sum_below for child in c])
+                    node.add_feature("sum_below", s)
+                    if s == 0:
+                        continue
                     values.append(d / s)
-                    node.add_features(sum_below=s)
             return sum(values) / len(values)
 
 

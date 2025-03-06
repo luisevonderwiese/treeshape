@@ -17,10 +17,6 @@ for i, row in df.iterrows():
     print(row["tree_name"])
     for metric_name in metrics.relative_metrics:
         print(metric_name)
-        try:
-            df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree), 3)
-        except Exception as e:
-            print(e)
-            continue
+        df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree), 3)
 print(df)
 df.to_csv("data/virus/metrics.csv")
