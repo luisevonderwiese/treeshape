@@ -148,7 +148,13 @@ relative_metrics = [
     "symmetry_nodes_index",
     "furnas_rank",
     "treeness",
-    "stemminess"]
+    "stemminess",
+
+    "maximum_width",
+    "maxdiff_widths",
+    "modified_maxdiff_widths",
+    "diameter",
+    "rooted_quartet_index"]
 #============ GENERAL ============
 
 def leaf_depths(tree):
@@ -359,7 +365,8 @@ def lX(n, Xset):
         mat[x, x+1] = x + 1
     return np.linalg.det(mat) / math.factorial(n)
 
-def precompute_rqi(tree, q = range(5)):
+def precompute_rqi(tree):
+    q = range(5)
     for node in tree.traverse("postorder"):
         if node.is_leaf():
             node.add_feature("ypsilon", 0)
@@ -692,14 +699,12 @@ def relative_normalized(metric_name, tree):
 def maximum(metric_name, n, m):
     match metric_name:
         case "average_leaf_depth":
-            m = n-1
             return m - (((m - 1) * m) / (2 * n))
 
         case "variance_of_leaves_depths":
             return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n) #no tight minimum for binary trees
 
         case "sackin_index":
-            m = n - 1
             return (n * m) - (((m - 1) * m) / 2)
 
         case "total_path_length":
@@ -715,21 +720,19 @@ def maximum(metric_name, n, m):
             return float('nan')
 
         case "B_2_index":
-            x  = math.floor(math.log2(n))
-            pow_x = math.pow(2, x)
-            return x + ((n - pow_x) / pow_x)
+            return math.log2(n) 
 
         case "height":
             return n - 1
 
         case "maximum_width":
-            return float('nan')
+            return n 
 
         case "maxdiff_widths":
-            return float('nan')
+            return n - 1
         
         case "modified_maxdiff_widths":
-            return float('nan')
+            return n - 1
 
         case "max_width_over_max_depth":
             return float('nan')
@@ -738,7 +741,7 @@ def maximum(metric_name, n, m):
             return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
 
         case "cherry_index":
-            return math.floor(n / 2)
+            return math.comb(n, 2)
 
         case "modified_cherry_index":
             return n - 2
@@ -750,8 +753,7 @@ def maximum(metric_name, n, m):
             return math.comb(n, 3)
 
         case "diameter":
-            return float('nan')
-            #return n #problem with min
+            return n
 
         case "area_per_pair_index":
             return float('nan')
@@ -808,7 +810,7 @@ def maximum(metric_name, n, m):
             return float('nan')
 
         case "rooted_quartet_index":
-            return float("nan")
+            return 4 * math.comb(n, 4)
 
         case "colijn_plazotta_rank":
             return float('nan')
@@ -830,27 +832,26 @@ def maximum(metric_name, n, m):
 def minimum(metric_name, n, m):
     match metric_name:
         case "average_leaf_depth":
-            x = math.floor(math.log2(n / 2))
-            return  x + 3 - (2 / n) * math.pow(2, x + 1)
+            k = n - m + 1
+            x = math.floor(math.log2(n / k))
+            return  x + 3 - (k / n) * math.pow(2, x + 1)
 
         case "variance_of_leaves_depths":
-            return 0 #bound only tight for general trees
+            return 0 
 
         case "sackin_index":
-            x = math.floor(math.log2(n / 2))
-            return (x + 3) * n - math.pow(2, x + 2)
+            k = n - m + 1
+            x = math.floor(math.log2(n / k))
+            return (x + 3) * n - k * math.pow(2, x + 1)
 
         case "total_path_length":
-            log_val = math.floor(math.log2(n))
-            return 2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2
+            return n
 
         case "total_internal_path_length":
-            log_val = math.floor(math.log2(n))
-            return log_val * n - math.pow(2, log_val + 1) + 2
+            return 0 
 
         case "average_vertex_depth":
-            log_val = math.floor(math.log2(n))
-            return (2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2) / (2 * n - 1)
+            return n / (n + 1) 
 
         case "B_1_index":
             return float('nan')
@@ -859,19 +860,16 @@ def minimum(metric_name, n, m):
             return 2 - math.pow(2, 2 - n)
 
         case "height":
-            return math.floor(math.log2(n)) + 1
+            return 1
 
         case "maximum_width":
-            return float('nan')
-            #return 2 #problem with maximum
+            return 2 
 
         case "maxdiff_widths":
-            return float('nan')
-            #return 1 #problem with maximum
+            return 1 #problem with maximum
 
         case "modified_maxdiff_widths":
-            return float('nan')
-            #return 1 #problem with maximum
+            return 1 #problem with maximum
 
         case "max_width_over_max_depth":
             return float('nan')
@@ -889,26 +887,10 @@ def minimum(metric_name, n, m):
             return float("nan")
 
         case "cophenetic_index":
-            factorial = 1
-            a = 1
-            s = 0
-            for i in range(n):
-                if i != 0:
-                    factorial += i
-                while factorial % (a * 2) == 0:
-                    a *= 2
-                s += a
             return 0
 
         case "diameter":
-            return float('nan')
-            #highest_1_bit = math.floor(math.log2(n))
-            #lowest_1_bit = math.log2(n & -n) + 1
-            #if highest_1_bit == lowest_1_bit or bin(n).count('1'):
-            #    inbetween = 0
-            #else:
-            #    inbetween = minimum("diameter", n1)
-            #return highest_1_bit + inbetween + lowest_1_bit
+            return 2 
 
         case "area_per_pair_index":
             return float('nan')
@@ -976,8 +958,7 @@ def minimum(metric_name, n, m):
             return float('nan')
 
         case "rooted_quartet_index":
-            return float("nan")
-            #return 0
+            return 0
 
         case "colijn_plazotta_rank":
             return float('nan')
