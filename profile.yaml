@@ -1,0 +1,104 @@
+#https://prospector.landscape.io/en/master/profiles.html
+strictness: medium #verylow, low, medium, high, veryhigh
+style-warnings: false
+test-warnings: false
+doc-warnings: false
+member-warnings: true
+inherits:
+    - default
+#ignore-paths:
+#    - docs
+#ignore-patterns:
+#    - (^|/)skip(this)?(/|$)
+autodetect: true
+max-line-length: 200
+
+# LINTERS
+pylint:
+    run: true
+#    disable:
+#        - bad-builtin
+#        - too-few-public-methods
+    options: #https://docs.pylint.org/features.html
+        max-locals: 15
+        max-returns: 6
+        max-branches: 12
+        max-statements: 50
+        max-parents: 7
+        max-attributes: 7
+        min-public-methods: 2
+        max-public-methods: 20
+        max-bool-expr: 5
+        max-module-lines: 1000
+        max-line-length: 200
+        max-args: 6
+        max-nested-blocks: 5
+        min-similarity-lines: 4
+
+flakes:
+    run: true
+    disable:
+        - F403
+        - F810
+ruff: #https://docs.astral.sh/ruff/configuration/#command-line-interface
+    run: true
+
+# TYPE CHECKING
+mypy: #https://mypy.readthedocs.io/en/stable/command_line.html
+     run: false
+#     options:
+#         ignore-missing-imports: true
+#         follow-imports: skip
+
+pyright: #https://microsoft.github.io/pyright/#/command-line
+    options:
+        level: warning
+#        project:
+#        pythonplatform:
+#        pythonversion:
+#        skipunannotated:
+#        typeshedpath:
+#        venv-path:
+
+# CODE COMPLEXITY
+mccabe:
+    run: true
+    options:
+        max-complexity: 10
+
+# SECURITY
+
+dodgy:
+    run: true
+
+bandit: #https://bandit.readthedocs.io/en/latest/config.html
+  run: true
+#  options:
+#      config:
+#      profile:
+#      severity:
+#      confidence:
+
+# STYLE
+pycodestyle: #pep8
+    full: true
+    disable:
+        - E126
+        - E302
+    options:
+        max-line-length: 120
+
+pydocstyle:
+    run: false
+
+
+
+# detects unused code
+vulture:
+     run: true
+
+# validates setup.py
+pyroma:
+     disable:
+        - PYR15
+        - PYR18

@@ -179,8 +179,8 @@ def precompute_clade_sizes(tree):
         if node.is_leaf():
             node.add_feature("clade_size", 1)
             continue
-        c = children(node)
-        node.add_feature("clade_size", c[0].clade_size + c[1].clade_size)
+        c = node.children
+        node.add_feature("clade_size", sum([child.clade_size for child in c]))
 
 
 def precompute_depths(tree):
@@ -188,7 +188,7 @@ def precompute_depths(tree):
     depths_recursive(tree)
 
 def depths_recursive(tree):
-    c = children(tree)
+    c = tree.children
     d = tree.depth + 1
     for child in c:
         child.add_feature("depth", d)
@@ -221,8 +221,8 @@ def precompute_probs(tree):
     probs_recursive(tree)
 
 def probs_recursive(tree):
-    c = children(tree)
-    p = tree.prob / 2
+    c = tree.children
+    p = tree.prob / len(c)
     for child in c:
         child.add_feature("prob", p)
         if not child.is_leaf():
@@ -233,8 +233,8 @@ def precompute_heights(tree):
         if node.is_leaf():
             node.add_feature("height", 0)
             continue
-        c = children(node)
-        h = 1 + max(c[0].height, c[1].height)
+        c = node.children
+        h = 1 + max([child.height for child in c])
         node.add_feature("height", h)
 
 def we(x):
@@ -344,6 +344,40 @@ def I_values(tree, mode, sw = 0):
                 values.append(I_w(tree, node, sw))
     return values
 
+def lX(n, Xset):
+    if n > len(Xset):
+        return 0
+    if n == len(Xset):
+        return math.prod(Xset)
+    if n == 1:
+        return sum(Xset)
+    P = [sum([math.pow(val, x) for val in Xset]) for x in range(1, n+1)]
+    mat = [[0 for _ in range(n)] for __ in range(n)]
+    for x in range(n):
+        mat[x, :x + 1] = P[:x+1][::-1]
+    for x in range(n):
+        mat[x, x+1] = x + 1
+    return np.linalg.det(mat) / math.factorial(n)
+
+def precompute_rqi(tree, q = range(5)):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("ypsilon", 0)
+            node.add_feature("rqi", 0)
+            continue
+        n_v = clade_size(tree, node)
+        c = node.children
+        ccs = [clade_size(tree, child) for child in c]
+        E3 = lX(3, ccs)
+        E4 = lX(4, ccs)
+        node.add_feature("ypsilon", sum([child.ypsilon for child in c]) + E3)
+        rqi = sum([child.rqi for child in c])
+        rqi += q[4] * E4 #star
+        rqi += q[3] * lX(2, [math.comb(cs, 2) for cs in ccs]) #fully balanced
+        rqi += q[2] * (clade_size(tree, node) * (node.ypsilon - E3) - \
+                sum([clade_size(tree, child) * child.ypsilon for child in c])) #3-pitchfork  + 1
+        rqi += q[1] * (0.5 * E3 * lX(1, ccs) - 2 * E4 - 1.5 * E3) # cherry + 2
+        node.add_feature("rqi", rqi)
 
 def is_bifurcating(tree):
     c = tree.children
@@ -445,8 +479,8 @@ def absolute(metric_name, tree):
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
                     continue
-                c = children(node)
-                if c[0].is_leaf() and c[1].is_leaf():
+                c = node.children
+                if len(c) == 2 and c[0].is_leaf() and c[1].is_leaf():
                     cnt += 1
             return cnt
 
@@ -578,13 +612,11 @@ def absolute(metric_name, tree):
             return sum(I_values(tree, "I_w", sw))
 
         case "rooted_quartet_index":
-            s = 0
-            for node in tree.traverse("postorder"):
-                if node.is_leaf():
-                    continue
-                c = children(node)
-                s += math.comb(clade_size(tree, c[0]), 2) * math.comb(clade_size(tree, c[1]), 2)
-            return s * 3
+            try:
+                return tree.rqi #check if rqis already precomputed
+            except AttributeError:
+                precompute_rqi(tree)
+                return tree.rqi
 
         case "colijn_plazotta_rank":
             if clade_size(tree, tree) == 1:
@@ -620,8 +652,8 @@ def absolute(metric_name, tree):
                 if node.is_leaf():
                     node.add_features(sum_below=d)
                 else:
-                    c = children(node)
-                    s = d + c[0].sum_below + c[1].sum_below
+                    c = node.children
+                    s = d + sum([child.sum_below for child in c])
                     values.append(d / s)
                     node.add_features(sum_below=s)
             return sum(values) / len(values)
@@ -636,8 +668,9 @@ def relative(metric_name, tree):
         raise NotImplementedError(metric_name, " is not an implemented relative metric")
     v = absolute(metric_name, tree)
     n = clade_size(tree, tree)
-    min_v = minimum(metric_name, n)
-    max_v = maximum(metric_name, n)
+    m = len([node for node in tree.traverse()]) - n
+    min_v = minimum(metric_name, n, m)
+    max_v = maximum(metric_name, n, m)
     if max_v == min_v:
         return float('nan')
     if max_v - v < -0.00001:
@@ -656,7 +689,7 @@ def relative_normalized(metric_name, tree):
     return rel
 
 
-def maximum(metric_name, n):
+def maximum(metric_name, n, m):
     match metric_name:
         case "average_leaf_depth":
             m = n-1
@@ -794,7 +827,7 @@ def maximum(metric_name, n):
 
 
 
-def minimum(metric_name, n):
+def minimum(metric_name, n, m):
     match metric_name:
         case "average_leaf_depth":
             x = math.floor(math.log2(n / 2))
