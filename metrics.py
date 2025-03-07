@@ -359,6 +359,20 @@ def precompute_rqi(tree):
     tree.rqi = tree.rqi + q[0] * math.comb(clade_size(tree, tree), 4)
 
 
+def colijn_plazotta_recursive(node):
+    if node.is_leaf():
+        node.add_feature("cp", 1)
+        return
+    c = node.children
+    assert len(c) == 2
+    colijn_plazotta_recursive(c[0])
+    colijn_plazotta_recursive(c[1])
+    if c[0].cp >= c[1].cp:
+        node.add_feature("cp", 0.5 * c[0].cp * (c[0].cp - 1) + c[1].cp + 1)
+    else:
+        node.add_feature("cp", 0.5 * c[1].cp * (c[1].cp - 1) + c[0].cp + 1)
+
+
 def is_bifurcating(tree):
     try: #check if heights already precomputed
         return tree.bifurcating
@@ -650,15 +664,11 @@ def absolute(metric_name, tree, mode):
         case "colijn_plazotta_rank":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
-            if clade_size(tree, tree) == 1:
-                return 1
-            c = tree.children
-            assert (len(c) == 2)
-            cp1 = absolute("colijn_plazotta_rank", c[0], mode)
-            cp2 = absolute("colijn_plazotta_rank", c[1], mode)
-            if cp1 >= cp2:
-                return 0.5 * cp1 * (cp1 - 1) + cp2 + 1
-            return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
+            try:
+                return tree.cp
+            except AttributeError:
+                colijn_plazotta_recursive(tree)
+                return tree.cp
 
         case "furnas_rank":
             if mode == "ARBITRARY":
