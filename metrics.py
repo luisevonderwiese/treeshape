@@ -193,6 +193,8 @@ def precompute_probs(tree):
     probs_recursive(tree)
 
 def probs_recursive(tree):
+    if tree.is_leaf():
+        return
     c = tree.children
     p = tree.prob / len(c)
     for child in c:
@@ -468,7 +470,10 @@ def absolute(metric_name, tree, mode):
             return res
 
         case "max_width_over_max_depth":
-            return absolute("maximum_width", tree, mode) / absolute("height", tree, mode)
+            h = absolute("height", tree, mode)
+            if h == 0:
+                return 0
+            return absolute("maximum_width", tree, mode) / h
 
         case "s_roof_shape":
             if mode == "ARBITRARY":
@@ -496,6 +501,8 @@ def absolute(metric_name, tree, mode):
 
         case "d_index":
             n = clade_size(tree, tree)
+            if n == 1:
+                return 0
             f_n = Counter([clade_size(tree, node) for node in tree.traverse()])
             s = 0
             for z in range(2, n):
@@ -513,6 +520,8 @@ def absolute(metric_name, tree, mode):
             return s
 
         case "diameter":
+            if tree.is_leaf(): #single-node-tree
+                return 0
             max_d = 0
             deepest_leaf = None
             for leaf in tree.iter_leaves():
@@ -527,6 +536,8 @@ def absolute(metric_name, tree, mode):
         
         case "area_per_pair_index":
             n = clade_size(tree, tree)
+            if n == 1:
+                return 0
             s = absolute("sackin_index", tree, mode)
             c = absolute("cophenetic_index", tree, mode)
             return  2 / n * s - 4 / (n * (n - 1)) * c
@@ -534,6 +545,8 @@ def absolute(metric_name, tree, mode):
         case "root_imbalance":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf(): #single-node-tree
+                return 0
             c = tree.children
             assert (len(c) == 2)
             return max(clade_size(tree, c[0]), clade_size(tree, c[1])) / clade_size(tree, tree)
@@ -541,6 +554,8 @@ def absolute(metric_name, tree, mode):
         case "I_root":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf(): #single-node-tree
+                return 0
             return I_value(tree, tree)
 
         case "colless_index":
