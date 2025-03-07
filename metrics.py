@@ -67,7 +67,7 @@ R_metrics = [
         "maxdiff_widths",
         "modified_maxdiff_widths",
         "height",
-        "max_width",
+        "maximum_width",
         "modified_cherry_index",
         "max_width_over_max_depth",
         "rogers_j_index",
@@ -126,35 +126,6 @@ imbalance_metrics =[
     "colijn_plazotta_rank"]
 
 
-relative_metrics = [
-    "average_leaf_depth",
-    "variance_of_leaves_depths",
-    "sackin_index",
-    "total_path_length",
-    "total_internal_path_length",
-    "average_vertex_depth",
-    "B_2_index",
-    "height",
-    "s_roof_shape",
-    "cherry_index",
-    "modified_cherry_index",
-    "cophenetic_index",
-    "root_imbalance",
-    "I_root",
-    "colless_index",
-    "quadratic_colless_index",
-    "stairs1",
-    "rogers_j_index",
-    "symmetry_nodes_index",
-    "furnas_rank",
-    "treeness",
-    "stemminess",
-
-    "maximum_width",
-    "maxdiff_widths",
-    "modified_maxdiff_widths",
-    # "diameter",
-    "rooted_quartet_index"]
 #============ GENERAL ============
 
 def leaf_depths(tree):
@@ -349,7 +320,7 @@ def I_values(tree, mode, sw = 0):
                 values.append(I_w(tree, node, sw))
     return values
 
-def lX(n, Xset):
+def E_l(n, Xset):
     if n > len(Xset):
         return 0
     if n == len(Xset):
@@ -366,6 +337,7 @@ def lX(n, Xset):
 
 def precompute_rqi(tree):
     q = range(5)
+    q = [q[0]] + [q[i] - q[0] for i in range(1, 5)]
     for node in tree.traverse("postorder"):
         if node.is_leaf():
             node.add_feature("ypsilon", 0)
@@ -374,16 +346,17 @@ def precompute_rqi(tree):
         n_v = clade_size(tree, node)
         c = node.children
         ccs = [clade_size(tree, child) for child in c]
-        E3 = lX(3, ccs)
-        E4 = lX(4, ccs)
+        E3 = E_l(3, ccs)
+        E4 = E_l(4, ccs)
         node.add_feature("ypsilon", sum([child.ypsilon for child in c]) + E3)
         rqi = sum([child.rqi for child in c])
         rqi += q[4] * E4 #star
-        rqi += q[3] * lX(2, [math.comb(cs, 2) for cs in ccs]) #fully balanced
+        rqi += q[3] * E_l(2, [math.comb(cs, 2) for cs in ccs]) #fully balanced
         rqi += q[2] * (clade_size(tree, node) * (node.ypsilon - E3) - \
                 sum([clade_size(tree, child) * child.ypsilon for child in c])) #3-pitchfork  + 1
-        rqi += q[1] * (0.5 * E3 * lX(1, ccs) - 2 * E4 - 1.5 * E3) # cherry + 2
+        rqi += q[1] * (0.5 * E3 * E_l(1, ccs) - 2 * E4 - 1.5 * E3) # cherry + 2
         node.add_feature("rqi", rqi)
+    tree.rqi = tree.rqi + q[0] * math.comb(clade_size(tree, tree), 4)
 
 
 def is_bifurcating(tree):
@@ -405,7 +378,9 @@ def bifurcating_recursive(tree):
 
 #============ ABSOLUTE METRICS ============
 
-def absolute(metric_name, tree):
+def absolute(metric_name, tree, mode):
+    if mode == "BINARY" and not is_bifurcating(tree):
+        raise ValueError("BINARY mode only possible for strictly bifurcating trees")
     if metric_name not in absolute_metrics:
         raise NotImplementedError(metric_name, " is not an implemented absolute metric")
     match metric_name:
@@ -479,11 +454,11 @@ def absolute(metric_name, tree):
             return res
 
         case "max_width_over_max_depth":
-            return absolute("maximum_width", tree) / absolute("height", tree)
+            return absolute("maximum_width", tree, mode) / absolute("height", tree, mode)
 
         case "s_roof_shape":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -501,7 +476,7 @@ def absolute(metric_name, tree):
             return cnt
 
         case "modified_cherry_index":
-            return clade_size(tree, tree) - 2 * absolute("cherry_index", tree) 
+            return clade_size(tree, tree) - 2 * absolute("cherry_index", tree, mode) 
 
         case "d_index":
             n = clade_size(tree, tree)
@@ -522,36 +497,39 @@ def absolute(metric_name, tree):
             return s
 
         case "diameter":
-            leaves = list(tree.iter_leaves())
-            m = 0
-            for i, node1 in enumerate(leaves):
-                for j in range(i):
-                    node2 = leaves[j]
-                    m = max(m, connecting_path_length(tree, node1, node2))
-            return m
+            max_d = 0
+            deepest_leaf = None
+            for leaf in tree.iter_leaves():
+                if depth(tree, leaf) > max_d:
+                    max_d = depth(tree, leaf)
+                    deepest_leaf = leaf
+            max_d = 0
+            for leaf in tree.iter_leaves():
+                max_d = max(max_d, connecting_path_length(tree, deepest_leaf, leaf))
+            return max_d
 
         
         case "area_per_pair_index":
             n = clade_size(tree, tree)
-            s = absolute("sackin_index", tree)
-            c = absolute("cophenetic_index", tree)
+            s = absolute("sackin_index", tree, mode)
+            c = absolute("cophenetic_index", tree, mode)
             return  2 / n * s - 4 / (n * (n - 1)) * c
 
         case "root_imbalance":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             c = tree.children
             assert (len(c) == 2)
             return max(clade_size(tree, c[0]), clade_size(tree, c[1])) / clade_size(tree, tree)
 
         case "I_root":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             return I_value(tree, tree)
 
         case "colless_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -559,14 +537,14 @@ def absolute(metric_name, tree):
             return s
 
         case "corrected_colless_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             n = len(tree)
-            return (2 * absolute("colless_index", tree)) / ((n-1) * (n-2))
+            return (2 * absolute("colless_index", tree, mode)) / ((n-1) * (n-2))
 
         case "quadratic_colless_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -575,8 +553,8 @@ def absolute(metric_name, tree):
             return s
 
         case "I_2_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             n = clade_size(tree, tree)
             s = 0
             for node in tree.traverse("postorder"):
@@ -587,13 +565,13 @@ def absolute(metric_name, tree):
             return s / (n - 2)
 
         case "stairs1":
-            if not is_bifurcating(tree):
-                return float("nan")
-            return absolute("rogers_j_index", tree) /  (clade_size(tree, tree)- 1)       
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
+            return absolute("rogers_j_index", tree, mode) /  (clade_size(tree, tree)- 1)       
 
         case "stairs2":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
@@ -606,8 +584,8 @@ def absolute(metric_name, tree):
             return s / (clade_size(tree, tree) - 1)
 
         case "rogers_j_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -616,8 +594,8 @@ def absolute(metric_name, tree):
             return s
 
         case "symmetry_nodes_index":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             cnt = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -628,37 +606,37 @@ def absolute(metric_name, tree):
             return cnt
 
         case "mean_I":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             values = I_values(tree, "I")
             return sum(values) / len(values)
 
         case "total_I":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             return sum(I_values(tree, "I"))
 
         case "mean_I_prime":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             values = I_values(tree, "I_prime")
             return sum(values) / len(values)
 
         case "total_I_prime":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             return sum(I_values(tree, "I_prime"))
 
         case "mean_I_w":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             sw = I_weight_sum(tree)
             values = I_values(tree, "I_w", sw)
             return sum(values) / len(values)
 
         case "total_I_w":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             sw = I_weight_sum(tree)
             return sum(I_values(tree, "I_w", sw))
 
@@ -670,21 +648,21 @@ def absolute(metric_name, tree):
                 return tree.rqi
 
         case "colijn_plazotta_rank":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             if clade_size(tree, tree) == 1:
                 return 1
             c = tree.children
             assert (len(c) == 2)
-            cp1 = absolute("colijn_plazotta_rank", c[0])
-            cp2 = absolute("colijn_plazotta_rank", c[1])
+            cp1 = absolute("colijn_plazotta_rank", c[0], mode)
+            cp2 = absolute("colijn_plazotta_rank", c[1], mode)
             if cp1 >= cp2:
                 return 0.5 * cp1 * (cp1 - 1) + cp2 + 1
             return 0.5 * cp2 * (cp2 - 1) + cp1 + 1
 
         case "furnas_rank":
-            if not is_bifurcating(tree):
-                return float("nan")
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             try:
                 return tree.furnas #check if furnas ranks already precomputed
             except AttributeError:
@@ -721,15 +699,17 @@ def absolute(metric_name, tree):
 
 
 
-def relative(metric_name, tree):
-    if metric_name not in relative_metrics:
-        raise NotImplementedError(metric_name, " is not an implemented relative metric")
-    v = absolute(metric_name, tree)
+def relative(metric_name, tree, mode):
+    assert mode in ["BINARY", "ARBITRARY"]
+    v = absolute(metric_name, tree, mode)
     n = clade_size(tree, tree)
-    m = len([node for node in tree.traverse()]) - n
-    min_v = minimum(metric_name, n, m)
-    max_v = maximum(metric_name, n, m)
-    if max_v == min_v:
+    if mode == "BINARY":
+        m = n - 1
+    else:
+        m = len([node for node in tree.traverse()]) - n
+    min_v = minimum(metric_name, n, m, mode)
+    max_v = maximum(metric_name, n, m, mode)
+    if math.isnan(min_v) or math.isnan(max_v) or max_v == min_v:
         return float('nan')
     if max_v - v < -0.00001:
         raise ValueError("Value above max for", metric_name)
@@ -738,8 +718,8 @@ def relative(metric_name, tree):
     return (v - min_v) / (max_v - min_v)
 
 
-def relative_normalized(metric_name, tree):
-    rel = relative(metric_name, tree)
+def relative_normalized(metric_name, tree, mode):
+    rel = relative(metric_name, tree, mode)
     if math.isnan(rel):
         return rel
     if metric_name in balance_metrics:
@@ -747,7 +727,7 @@ def relative_normalized(metric_name, tree):
     return rel
 
 
-def maximum(metric_name, n, m):
+def maximum(metric_name, n, m, mode):
     match metric_name:
         case "average_leaf_depth":
             return m - (((m - 1) * m) / (2 * n))
@@ -771,19 +751,33 @@ def maximum(metric_name, n, m):
             return float('nan')
 
         case "B_2_index":
-            return math.log2(n) 
+            if mode == "BINARY":
+                x  = math.floor(math.log2(n))
+                pow_x = math.pow(2, x)
+                return x + ((n - pow_x) / pow_x)
+            if mode == "ARBITRARY":
+                return math.log2(n) 
 
         case "height":
             return n - 1
 
         case "maximum_width":
-            return n 
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return n 
 
         case "maxdiff_widths":
-            return n - 1
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return n - 1
         
         case "modified_maxdiff_widths":
-            return n - 1
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return n - 1
 
         case "max_width_over_max_depth":
             return float('nan')
@@ -792,7 +786,10 @@ def maximum(metric_name, n, m):
             return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
 
         case "cherry_index":
-            return math.comb(n, 2)
+            if mode == "BINARY":
+                return math.floor(n / 2)
+            if mode == "ARBITRARY":
+                return math.comb(n, 2)
 
         case "modified_cherry_index":
             return n - 2
@@ -861,7 +858,10 @@ def maximum(metric_name, n, m):
             return float('nan')
 
         case "rooted_quartet_index":
-            return 4 * math.comb(n, 4)
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return 4 * math.comb(n, 4)
 
         case "colijn_plazotta_rank":
             return float('nan')
@@ -880,7 +880,7 @@ def maximum(metric_name, n, m):
 
 
 
-def minimum(metric_name, n, m):
+def minimum(metric_name, n, m, mode):
     match metric_name:
         case "average_leaf_depth":
             k = n - m + 1
@@ -888,7 +888,7 @@ def minimum(metric_name, n, m):
             return  x + 3 - (k / n) * math.pow(2, x + 1)
 
         case "variance_of_leaves_depths":
-            return 0 
+            return 0 #bound only tight for general trees
 
         case "sackin_index":
             k = n - m + 1
@@ -896,13 +896,25 @@ def minimum(metric_name, n, m):
             return (x + 3) * n - k * math.pow(2, x + 1)
 
         case "total_path_length":
-            return n
+            if mode == "BINARY":
+                log_val = math.floor(math.log2(n))
+                return 2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2
+            if mode == "ARBITRARY":
+                return n
 
         case "total_internal_path_length":
-            return 0 
+            if mode == "BINARY":
+                log_val = math.floor(math.log2(n))
+                return log_val * n - math.pow(2, log_val + 1) + 2
+            if mode == "ARBITRARY":
+                return 0 
 
         case "average_vertex_depth":
-            return n / (n + 1) 
+            if mode == "BINARY":
+                log_val = math.floor(math.log2(n))
+                return (2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2) / (2 * n - 1)
+            if mode == "ARBITRARY":
+                return n / (n + 1) 
 
         case "B_1_index":
             return float('nan')
@@ -911,16 +923,19 @@ def minimum(metric_name, n, m):
             return 2 - math.pow(2, 2 - n)
 
         case "height":
-            return 1
+            if mode == "BINARY":
+                return math.floor(math.log2(n)) + 1
+            if mode == "ARBITRARY":
+                return 1
 
         case "maximum_width":
             return 2 
 
         case "maxdiff_widths":
-            return 1 #problem with maximum
+            return 1
 
         case "modified_maxdiff_widths":
-            return 1 #problem with maximum
+            return 1
 
         case "max_width_over_max_depth":
             return float('nan')
@@ -941,7 +956,10 @@ def minimum(metric_name, n, m):
             return 0
 
         case "diameter":
-            return 2 
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return 2 
 
         case "area_per_pair_index":
             return float('nan')
