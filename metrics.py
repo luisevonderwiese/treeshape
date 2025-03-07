@@ -484,12 +484,14 @@ def absolute(metric_name, tree, mode):
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
                     continue
-                c = node.children
-                if len(c) == 2 and c[0].is_leaf() and c[1].is_leaf():
-                    cnt += 1
+                direct_leaves = len([child for child in node.children if child.is_leaf()])
+                if direct_leaves >= 2:
+                    cnt += math.comb(direct_leaves, 2)
             return cnt
 
         case "modified_cherry_index":
+            if mode == "ARBITRARY":
+                raise ValueError(metric_name, " is not defined for arbitrary trees")
             return clade_size(tree, tree) - 2 * absolute("cherry_index", tree, mode) 
 
         case "d_index":
@@ -957,7 +959,7 @@ def minimum(metric_name, n, m, mode):
             return 1
 
         case "modified_cherry_index":
-            return n % 2 
+            return n % 2
 
         case "d_index":
             return float("nan")
