@@ -398,7 +398,7 @@ def absolute(metric_name, tree, mode):
     if mode == "BINARY" and not is_bifurcating(tree):
         raise ValueError("BINARY mode only possible for strictly bifurcating trees")
     if metric_name not in absolute_metrics:
-        raise NotImplementedError(metric_name, " is not an implemented absolute metric")
+        raise NotImplementedError(metric_name + " is not an implemented absolute metric")
     match metric_name:
         case "average_leaf_depth":
             depths = leaf_depths(tree)
@@ -477,7 +477,7 @@ def absolute(metric_name, tree, mode):
 
         case "s_roof_shape":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -496,7 +496,7 @@ def absolute(metric_name, tree, mode):
 
         case "modified_cherry_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             return clade_size(tree, tree) - 2 * absolute("cherry_index", tree, mode) 
 
         case "d_index":
@@ -544,7 +544,7 @@ def absolute(metric_name, tree, mode):
 
         case "root_imbalance":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf(): #single-node-tree
                 return 0
             c = tree.children
@@ -553,14 +553,14 @@ def absolute(metric_name, tree, mode):
 
         case "I_root":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf(): #single-node-tree
                 return 0
             return I_value(tree, tree)
 
         case "colless_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -569,7 +569,7 @@ def absolute(metric_name, tree, mode):
 
         case "corrected_colless_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             n = clade_size(tree, tree)
@@ -577,7 +577,7 @@ def absolute(metric_name, tree, mode):
 
         case "quadratic_colless_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -587,7 +587,7 @@ def absolute(metric_name, tree, mode):
 
         case "I_2_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             n = clade_size(tree, tree)
             s = 0
             for node in tree.traverse("postorder"):
@@ -599,14 +599,14 @@ def absolute(metric_name, tree, mode):
 
         case "stairs1":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             return absolute("rogers_j_index", tree, mode) /  (clade_size(tree, tree)- 1)       
 
         case "stairs2":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             s = 0
@@ -622,7 +622,7 @@ def absolute(metric_name, tree, mode):
 
         case "rogers_j_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -632,7 +632,7 @@ def absolute(metric_name, tree, mode):
 
         case "symmetry_nodes_index":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             cnt = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -644,7 +644,7 @@ def absolute(metric_name, tree, mode):
 
         case "mean_I":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             values = I_values(tree, "I")
@@ -652,12 +652,12 @@ def absolute(metric_name, tree, mode):
 
         case "total_I":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             return sum(I_values(tree, "I"))
 
         case "mean_I_prime":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             values = I_values(tree, "I_prime")
@@ -665,12 +665,12 @@ def absolute(metric_name, tree, mode):
 
         case "total_I_prime":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             return sum(I_values(tree, "I_prime"))
 
         case "mean_I_w":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             sw = I_weight_sum(tree)
@@ -679,7 +679,7 @@ def absolute(metric_name, tree, mode):
 
         case "total_I_w":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             if tree.is_leaf():
                 return 0
             sw = I_weight_sum(tree)
@@ -694,7 +694,7 @@ def absolute(metric_name, tree, mode):
 
         case "colijn_plazotta_rank":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             try:
                 return tree.cp
             except AttributeError:
@@ -703,7 +703,7 @@ def absolute(metric_name, tree, mode):
 
         case "furnas_rank":
             if mode == "ARBITRARY":
-                raise ValueError(metric_name, " is not defined for arbitrary trees")
+                raise ValueError(metric_name + " is not defined for arbitrary trees")
             try:
                 return tree.furnas #check if furnas ranks already precomputed
             except AttributeError:
@@ -757,9 +757,9 @@ def relative(metric_name, tree, mode):
     if math.isnan(min_v) or math.isnan(max_v) or min_v == max_v:
         return float('nan')
     if max_v - v < -0.00001:
-        raise ValueError("Value above max for", metric_name)
+        raise ValueError("Value above max for " + metric_name)
     if v - min_v < -0.00001:
-        raise ValueError("Value below min for", metric_name)
+        raise ValueError("Value below min for " + metric_name)
     return (v - min_v) / (max_v - min_v)
 
 
@@ -1032,6 +1032,8 @@ def minimum(metric_name, n, m, mode):
             if mode == "BINARY":
                 return float("nan")
             if mode == "ARBITRARY":
+                if n == 1:
+                    return 0
                 return 2 
 
         case "area_per_pair_index":
