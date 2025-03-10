@@ -2,7 +2,17 @@ from ete3 import Tree
 import metrics
 
 tree =  Tree("A;")
-print(tree)
 for metric_name in metrics.absolute_metrics:
     print(metric_name)
-    metrics.absolute(metric_name, tree, "BINARY")
+    try:
+        print(metrics.absolute(metric_name, tree, "BINARY"))
+    except ValueError as e:
+        print(e)
+    try:
+        print(metrics.relative(metric_name, tree, "BINARY"))
+    except ValueError as e:
+        print(e)
+    try:
+        print(metrics.relative(metric_name, tree, "ARBITRARY"))
+    except ValueError as e:
+        print(e)

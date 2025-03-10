@@ -570,7 +570,9 @@ def absolute(metric_name, tree, mode):
         case "corrected_colless_index":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
-            n = len(tree)
+            if tree.is_leaf():
+                return 0
+            n = clade_size(tree, tree)
             return (2 * absolute("colless_index", tree, mode)) / ((n-1) * (n-2))
 
         case "quadratic_colless_index":
@@ -598,11 +600,15 @@ def absolute(metric_name, tree, mode):
         case "stairs1":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             return absolute("rogers_j_index", tree, mode) /  (clade_size(tree, tree)- 1)       
 
         case "stairs2":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             s = 0
             for node in tree.traverse("postorder"):
                 if node.is_leaf():
@@ -639,6 +645,8 @@ def absolute(metric_name, tree, mode):
         case "mean_I":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             values = I_values(tree, "I")
             return sum(values) / len(values)
 
@@ -650,6 +658,8 @@ def absolute(metric_name, tree, mode):
         case "mean_I_prime":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             values = I_values(tree, "I_prime")
             return sum(values) / len(values)
 
@@ -661,6 +671,8 @@ def absolute(metric_name, tree, mode):
         case "mean_I_w":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             sw = I_weight_sum(tree)
             values = I_values(tree, "I_w", sw)
             return sum(values) / len(values)
@@ -668,6 +680,8 @@ def absolute(metric_name, tree, mode):
         case "total_I_w":
             if mode == "ARBITRARY":
                 raise ValueError(metric_name, " is not defined for arbitrary trees")
+            if tree.is_leaf():
+                return 0
             sw = I_weight_sum(tree)
             return sum(I_values(tree, "I_w", sw))
 
@@ -697,6 +711,8 @@ def absolute(metric_name, tree, mode):
                 return tree.furnas
 
         case "treeness":
+            if tree.is_leaf():
+                return 0
             all_brlens = 0
             internal_brlens = 0
             for node in tree.traverse("postorder"):
@@ -707,6 +723,8 @@ def absolute(metric_name, tree, mode):
             return internal_brlens / all_brlens
 
         case "stemminess":
+            if tree.is_leaf():
+                return 0
             values = []
             for node in tree.iter_descendants("postorder"):
                 d = node.dist
@@ -736,7 +754,7 @@ def relative(metric_name, tree, mode):
         m = len([node for node in tree.traverse()]) - n
     min_v = minimum(metric_name, n, m, mode)
     max_v = maximum(metric_name, n, m, mode)
-    if math.isnan(min_v) or math.isnan(max_v) or max_v == min_v:
+    if math.isnan(min_v) or math.isnan(max_v) or min_v == max_v:
         return float('nan')
     if max_v - v < -0.00001:
         raise ValueError("Value above max for", metric_name)
@@ -819,6 +837,8 @@ def maximum(metric_name, n, m, mode):
                 return math.comb(n, 2)
 
         case "modified_cherry_index":
+            if n == 1:
+                return 1
             return n - 2
 
         case "d_index":
@@ -837,6 +857,8 @@ def maximum(metric_name, n, m, mode):
             return (n - 1) / n
 
         case "I_root":
+            if n == 1:
+                return 0
             return 1
 
         case "colless_index":
@@ -854,6 +876,8 @@ def maximum(metric_name, n, m, mode):
             #return 1 problem with minimum
         
         case "stairs1":
+            if n == 1:
+                return 0
             return max(0, n - 2) / (n - 1)
         
         case "stairs2":
@@ -864,6 +888,8 @@ def maximum(metric_name, n, m, mode):
             return max(0, n - 2)
 
         case "symmetry_nodes_index":
+            if n == 1:
+                return 0
             return n - 2
 
         case "mean_I":
@@ -900,9 +926,13 @@ def maximum(metric_name, n, m, mode):
                 return float("nan")
 
         case "treeness":
+            if n == 1:
+                return 0
             return 1 #pseudo bound
 
         case "stemminess":
+            if n == 1:
+                return 0
             return 1 #pseudo bound
 
 
@@ -923,6 +953,8 @@ def minimum(metric_name, n, m, mode):
             return (x + 3) * n - k * math.pow(2, x + 1)
 
         case "total_path_length":
+            if n == 1:
+                return 0
             if mode == "BINARY":
                 log_val = math.floor(math.log2(n))
                 return 2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2
@@ -937,6 +969,8 @@ def minimum(metric_name, n, m, mode):
                 return 0 
 
         case "average_vertex_depth":
+            if n == 1: 
+                return 0
             if mode == "BINARY":
                 log_val = math.floor(math.log2(n))
                 return (2 * log_val * n - math.pow(2, log_val + 2) + 2 * n + 2) / (2 * n - 1)
@@ -950,27 +984,39 @@ def minimum(metric_name, n, m, mode):
             return 2 - math.pow(2, 2 - n)
 
         case "height":
+            if n == 1:
+                return 0
             if mode == "BINARY":
                 return math.floor(math.log2(n)) + 1
             if mode == "ARBITRARY":
                 return 1
 
         case "maximum_width":
+            if n == 1:
+                return 1
             return 2 
 
         case "maxdiff_widths":
+            if n == 1:
+                return 0
             return 1
 
         case "modified_maxdiff_widths":
+            if n == 1:
+                return 0
             return 1
 
         case "max_width_over_max_depth":
             return float('nan')
 
         case "s_roof_shape":
+            if n == 1:
+                return 0
             return math.log2(n - 1) #only tight for general trees
 
         case "cherry_index":
+            if n == 1:
+                return 0
             return 1
 
         case "modified_cherry_index":
@@ -992,6 +1038,8 @@ def minimum(metric_name, n, m, mode):
             return float('nan')
 
         case "root_imbalance":
+            if n == 1:
+                return 0
             return math.ceil(n / 2) / n
 
         case "I_root":
@@ -1023,6 +1071,8 @@ def minimum(metric_name, n, m, mode):
             return float("nan")
 
         case "stairs1":
+            if n == 1:
+                return 0
             return (bin(n).count("1") - 1) / (n - 1)
 
         case "stairs2":
