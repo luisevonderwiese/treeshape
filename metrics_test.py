@@ -279,12 +279,28 @@ class TestMetrics(unittest.TestCase):
             for metric_name in metrics.absolute_metrics:
                 self.assertAlmostEqual(metrics.absolute(metric_name, tree, "BINARY"), self.expected[test_tree_name][metric_name])
 
-    def test_relative(self):
+    def test_relative_binary(self):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             for metric_name in metrics.absolute_metrics:
-                metrics.relative(metric_name, tree, "BINARY")
+                try:
+                    metrics.relative(metric_name, tree, "BINARY")
+                except ValueError as e:
+                    #print(e)
+                    continue
+
+    def test_relative_arbitrary(self):
+        test_trees = {}
+        for test_tree_name in self.test_tree_names:
+            tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
+            for metric_name in metrics.absolute_metrics:
+                try:
+                    metrics.relative(metric_name, tree, "ARBITRARY")
+                except ValueError as e:
+                    #print(e)
+                    continue
+
 
 
 if __name__ == '__main__':

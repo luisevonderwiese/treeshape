@@ -16,11 +16,9 @@ for i, row in df.iterrows():
     tree =  Tree(os.path.join(trees_dir, row["tree_name"]))
     print(row["tree_name"])
     for metric_name in metrics.absolute_metrics:
-        if metric_name == "diameter":
-            continue
         print(metric_name)
         try:
-            df.at[i, metric_name] = round(metrics.relative_normalized(metric_name, tree, "ARBITRARY"), 3)
+            df.at[i, metric_name] = round(metrics.relative(metric_name, tree, "ARBITRARY"), 3)
         except ValueError as e:
             print(e)
             continue

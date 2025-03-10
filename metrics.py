@@ -754,22 +754,24 @@ def relative(metric_name, tree, mode):
         m = len([node for node in tree.traverse()]) - n
     min_v = minimum(metric_name, n, m, mode)
     max_v = maximum(metric_name, n, m, mode)
-    if math.isnan(min_v) or math.isnan(max_v) or min_v == max_v:
-        return float('nan')
+    if math.isnan(min_v) or math.isnan(max_v):
+        raise ValueError(metric_name + " cannot be normalized for " + mode.lower() + " trees")
+    if min_v == max_v:
+        raise ValueError("Minimum equals maximum for " + metric_name +  " for " + mode.lower() + " trees")
     if max_v - v < -0.00001:
-        raise ValueError("Value above max for " + metric_name)
+        raise ArithmeticError("Value above maximum for " + metric_name)
     if v - min_v < -0.00001:
-        raise ValueError("Value below min for " + metric_name)
+        raise ArithmeticError("Value below minimum for " + metric_name)
     return (v - min_v) / (max_v - min_v)
 
 
-def relative_normalized(metric_name, tree, mode):
-    rel = relative(metric_name, tree, mode)
-    if math.isnan(rel):
-        return rel
-    if metric_name in balance_metrics:
-        return 1 - rel
-    return rel
+#def relative_normalized(metric_name, tree, mode):
+#    rel = relative(metric_name, tree, mode)
+#    if math.isnan(rel):
+#        return rel
+#    if metric_name in balance_metrics:
+#        return 1 - rel
+#    return rel
 
 
 def maximum(metric_name, n, m, mode):
