@@ -476,8 +476,6 @@ def absolute(metric_name, tree, mode):
             return absolute("maximum_width", tree, mode) / h
 
         case "s_roof_shape":
-            if mode == "ARBITRARY":
-                raise ValueError(metric_name + " is not defined for arbitrary trees")
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
@@ -780,7 +778,7 @@ def maximum(metric_name, n, m, mode):
             return m - (((m - 1) * m) / (2 * n))
 
         case "variance_of_leaves_depths":
-            return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n) #no tight minimum for binary trees
+            return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n)
 
         case "sackin_index":
             return (n * m) - (((m - 1) * m) / 2)
@@ -830,7 +828,7 @@ def maximum(metric_name, n, m, mode):
             return float('nan')
 
         case "s_roof_shape":
-            return math.log2(math.factorial(n - 1)) #no tight minimum for binary trees
+            return math.log2(math.factorial(n - 1))
 
         case "cherry_index":
             if mode == "BINARY":
@@ -839,9 +837,12 @@ def maximum(metric_name, n, m, mode):
                 return math.comb(n, 2)
 
         case "modified_cherry_index":
-            if n == 1:
-                return 1
-            return n - 2
+            if mode == "BINARY":
+                if n == 1:
+                    return 1
+                return n - 2
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "d_index":
             return float("nan")
@@ -856,43 +857,73 @@ def maximum(metric_name, n, m, mode):
             return float('nan')
 
         case "root_imbalance":
-            return (n - 1) / n
+            if mode == "BINARY":
+                return (n - 1) / n
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "I_root":
-            if n == 1:
-                return 0
-            return 1
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return 1
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "colless_index":
-            return ((n - 1) * (n - 2)) / 2
+            if mode == "BINARY":
+                return ((n - 1) * (n - 2)) / 2
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "corrected_colless_index":
-            return float('nan')
-            #return 1 #use colleess instead
+            if mode == "BINARY":
+                if n <= 2:
+                    return 0
+                return 1
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "quadratic_colless_index":
-            return math.comb(n, 3) + math.comb(n - 1, 3)
+            if mode == "BINARY":
+                return math.comb(n, 3) + math.comb(n - 1, 3)
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "I_2_index":
-            return float('nan')
-            #return 1 problem with minimum
+            if mode == "BINARY":
+                if n <= 2:
+                    return 0
+                return 1
+            if mode == "ARBITRARY":
+                return float("nan")
         
         case "stairs1":
-            if n == 1:
-                return 0
-            return max(0, n - 2) / (n - 1)
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return (n - 2) / (n - 1)
+            if mode == "ARBITRARY":
+                return float("nan")
         
         case "stairs2":
             return float('nan')
-            #return sum([1 / i for i in range(1, n)]) / (n - 1) (holds for caterpillar but is not the maximum)
 
         case "rogers_j_index":
-            return max(0, n - 2)
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return n - 2
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "symmetry_nodes_index":
-            if n == 1:
-                return 0
-            return n - 2
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return n - 2
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "mean_I":
             return float('nan')
@@ -922,9 +953,12 @@ def maximum(metric_name, n, m, mode):
             return float('nan')
 
         case "furnas_rank":
-            try:
-                return we(n)
-            except NotImplementedError:
+            if mode == "BINARY":
+                try:
+                    return we(n)
+                except NotImplementedError:
+                    return float("nan")
+            if mode == "ABITRARY":
                 return float("nan")
 
         case "treeness":
@@ -947,7 +981,10 @@ def minimum(metric_name, n, m, mode):
             return  x + 3 - (k / n) * math.pow(2, x + 1)
 
         case "variance_of_leaves_depths":
-            return 0 #bound only tight for general trees
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                return 0 
 
         case "sackin_index":
             k = n - m + 1
@@ -1009,12 +1046,17 @@ def minimum(metric_name, n, m, mode):
             return 1
 
         case "max_width_over_max_depth":
-            return float('nan')
-
-        case "s_roof_shape":
             if n == 1:
                 return 0
-            return math.log2(n - 1) #only tight for general trees
+            return 2 / (n - 1)
+
+        case "s_roof_shape":
+            if mode == "BINARY":
+                return float("nan")
+            if mode == "ARBITRARY":
+                if n == 1:
+                    return 0
+                return math.log2(n - 1) 
 
         case "cherry_index":
             if n == 1:
@@ -1022,13 +1064,30 @@ def minimum(metric_name, n, m, mode):
             return 1
 
         case "modified_cherry_index":
-            return n % 2
+            if mode == "BINARY":
+                return n % 2
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "d_index":
             return float("nan")
 
         case "cophenetic_index":
-            return 0
+            if mode == "BINARY":
+                factorial = 1
+                s = 0
+                for i in range(n):
+                    a = 1
+                    j = 0
+                    if i != 0:
+                        factorial *= i
+                    while (a * 2) <= factorial and factorial % (a * 2) == 0:
+                        a *= 2
+                        j += 1
+                    s += j
+                return s
+            if mode == "ARBITRARY":
+                return 0
 
         case "diameter":
             if mode == "BINARY":
@@ -1042,52 +1101,76 @@ def minimum(metric_name, n, m, mode):
             return float('nan')
 
         case "root_imbalance":
-            if n == 1:
-                return 0
-            return math.ceil(n / 2) / n
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return math.ceil(n / 2) / n
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "I_root":
-            return 0
+            if mode == "BINARY":
+                return 0
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "colless_index":
-            sum_bound = math.ceil(math.log2(n))
-            s = 0
-            for j in range(1, sum_bound):
-                x = math.pow(2, -j) * n
-                triangle_wave = min(math.ceil(x) - x, x - math.floor(x))
-                s += math.pow(2, j) * triangle_wave
-            return s
+            if mode == "BINARY":
+                sum_bound = math.ceil(math.log2(n))
+                s = 0
+                for j in range(1, sum_bound):
+                    x = math.pow(2, -j) * n
+                    triangle_wave = min(math.ceil(x) - x, x - math.floor(x))
+                    s += math.pow(2, j) * triangle_wave
+                return s
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "corrected_colless_index":
-            return float('nan')
-            #return (2 / ((n - 1) * (n - 2))) * minimum("colless_index", n) #noramlize colless instead
+            if mode == "BINARY":
+                if n <= 2:
+                    return 0
+                return (2 / ((n - 1) * (n - 2))) * minimum("colless_index", n, m, mode)
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "quadratic_colless_index":
-            sum_bound = math.ceil(math.log2(n))
-            s = 0
-            for j in range(1, sum_bound):
-                x = math.pow(2, -j) * n
-                triangle_wave = min(math.ceil(x) - x, x - math.floor(x))
-                s += math.pow(2, j) * triangle_wave
-            return s
+            if mode == "BINARY":
+                sum_bound = math.ceil(math.log2(n))
+                s = 0
+                for j in range(1, sum_bound):
+                    x = math.pow(2, -j) * n
+                    triangle_wave = min(math.ceil(x) - x, x - math.floor(x))
+                    s += math.pow(2, j) * triangle_wave
+                return s
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "I_2_index":
             return float("nan")
 
         case "stairs1":
-            if n == 1:
-                return 0
-            return (bin(n).count("1") - 1) / (n - 1)
+            if mode == "BINARY":
+                if n == 1:
+                    return 0
+                return (bin(n).count("1") - 1) / (n - 1)
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "stairs2":
             return float('nan')
-            #return 0 #problem with maximum
 
         case "rogers_j_index":
-            return bin(n).count("1") - 1
+            if mode == "BINARY":
+                return bin(n).count("1") - 1
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "symmetry_nodes_index":
-            return  bin(n).count("1") - 1
+            if mode == "BINARY":
+                return bin(n).count("1") - 1
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "mean_I":
             return float('nan')
@@ -1114,7 +1197,10 @@ def minimum(metric_name, n, m, mode):
             return float('nan')
 
         case "furnas_rank":
-            return 1
+            if mode == "BINARY":
+                return 1
+            if mode == "ARBITRARY":
+                return float("nan")
 
         case "treeness":
             return 0 #pseudo bound
