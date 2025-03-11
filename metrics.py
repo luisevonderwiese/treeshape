@@ -502,11 +502,12 @@ def absolute(metric_name, tree, mode):
             if n == 1:
                 return 0
             f_n = Counter([clade_size(tree, node) for node in tree.traverse()])
+            num_inner_nodes = len([_ for _ in tree.traverse()]) - n
             s = 0
             for z in range(2, n):
                 p_n = (n / (n - 1)) * (2 / (z * (z + 1)))
-                s += z * abs(f_n[z] - p_n)
-            s += n * abs(f_n[n] - (1 / (n - 1)))
+                s += z * abs(f_n[z] / num_inner_nodes - p_n)
+            s += n * abs(f_n[n] / num_inner_nodes - (1 / (n - 1)))
             return s
 
 

@@ -9,7 +9,7 @@ import pandas as pd
 
 
 class TestMetrics(unittest.TestCase):
-    ref_dir = "reference_results"
+    ref_dir = "data/reference_results"
     tree_names = ["covid_edited"]
     expected = {}
     for tree_name in tree_names:
