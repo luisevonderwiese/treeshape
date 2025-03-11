@@ -10,10 +10,13 @@ import pandas as pd
 
 class TestMetrics(unittest.TestCase):
     ref_dir = "data/reference_results"
-    tree_names = ["covid_edited"]
+    tree_dir = "data/virus/trees/rooted"
     expected = {}
-    for tree_name in tree_names:
-        df = pd.read_csv(os.path.join(ref_dir, tree_name + ".csv"))
+    for tree_name in os.listdir(tree_dir):
+        try:
+            df = pd.read_csv(os.path.join(ref_dir, tree_name + ".csv"))
+        except FileNotFoundError:
+            continue
         results = {}
         for i, row in df.iterrows():
             results[row["names"]] = float(row["results"])
@@ -21,8 +24,10 @@ class TestMetrics(unittest.TestCase):
 
     def test(self):
         test_trees = {}
-        for test_tree_name in self.tree_names:
-            tree = Tree(os.path.join("data/virus/trees/rooted", test_tree_name + ".rooted.tree"))
+        for test_tree_name in os.listdir(self.tree_dir):
+            if not test_tree_name in self.expected:
+                continue
+            tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             for metric_name in metrics.R_metrics:
                 print(metric_name)
                 try:
