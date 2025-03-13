@@ -1,9 +1,11 @@
 from ete3 import Tree
 import os
-import metrics
 import math
 import unittest
 import pandas as pd
+
+from treebalance import TreeBalance
+import indexlists
 
 
 
@@ -28,13 +30,15 @@ class TestMetrics(unittest.TestCase):
             if not test_tree_name in self.expected:
                 continue
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
-            for metric_name in metrics.R_metrics:
-                print(metric_name)
+            tb_b = TreeBalance(tree, "BINARY")
+            tb_a = TreeBalance(tree, "ABRITRARY")
+            for index_name in indexlists.R_implemented_indices:
+                print(index_name)
                 try:
-                    self.assertAlmostEqual(metrics.absolute(metric_name, tree, "BINARY"), self.expected[test_tree_name][metric_name])
+                    self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][metric_name])
                 except ValueError as e:
                     print(e)
-                    self.assertAlmostEqual(metrics.absolute(metric_name, tree, "ARBITRARY"), self.expected[test_tree_name][metric_name])
+                    self.assertAlmostEqual(tb_a.absolute(index_name), self.expected[test_tree_name][metric_name])
 
 
 if __name__ == '__main__':

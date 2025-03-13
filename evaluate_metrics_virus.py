@@ -1,7 +1,9 @@
 import os
 import pandas as pd
 from ete3 import Tree
-import metrics
+
+from treebalance import TreeBalance
+import indexlists
 
 dfs = {}
 trees_dir = "data/virus/trees/rooted"
@@ -14,11 +16,12 @@ df = pd.DataFrame(tree_names, columns=["tree_name"])
 
 for i, row in df.iterrows():
     tree =  Tree(os.path.join(trees_dir, row["tree_name"]))
+    tb = TreeBalance(tree, "ARBITRARY")
     print(row["tree_name"])
-    for metric_name in metrics.absolute_metrics:
-        print(metric_name)
+    for index_name in indexlists.all_indices:
+        print(index_name)
         try:
-            df.at[i, metric_name] = round(metrics.relative(metric_name, tree, "ARBITRARY"), 3)
+            df.at[i, metric_name] = round(tb.relative(index_name), 3)
         except ValueError as e:
             print(e)
             continue

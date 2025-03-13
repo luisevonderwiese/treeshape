@@ -1,10 +1,10 @@
 from ete3 import Tree
 import os
-import metrics
 import math
 import unittest
 
-
+from treebalance import TreeBalance
+import indexlists
 
 
 class TestMetrics(unittest.TestCase):
@@ -22,16 +22,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 30 / 11,
         "B_1_index" : 25 / 12,
         "B_2_index" : 31 /16,
-        "height" : 5,
+        "maximum_depth" : 5,
         "maximum_width" : 2,
         "maxdiff_widths" : 1,
         "modified_maxdiff_widths" : 1,
         "max_width_over_max_depth" : 2 / 5,
-        "s_roof_shape" : math.log2(120),
+        "s_shape" : math.log2(120),
         "cherry_index" : 1,
         "modified_cherry_index" : 4,
         "d_index": 1.32,
-        "cophenetic_index" : 20,
+        "total_cophenetic_index" : 20,
         "diameter" : 6,
         "area_per_pair_index" : 60 / 15,
         "root_imbalance" : 5 / 6,
@@ -50,7 +50,7 @@ class TestMetrics(unittest.TestCase):
         "total_I_prime" : 31 / 12,
         "mean_I_w" : 1,
         "total_I_w" : 3,
-        "colijn_plazotta_rank" : 68,        
+        "colijn_plazotta_rank" : 68,
         "furnas_rank" : 1,
         "rooted_quartet_index" : 0,
         "treeness" : 0.4,
@@ -65,16 +65,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 28 / 11,
         "B_1_index" : 17 / 6,
         "B_2_index" : 2,
-        "height" : 4,
+        "maximum_depth" : 4,
         "maximum_width" : 4,
         "maxdiff_widths" : 2,
         "modified_maxdiff_widths" : 2,
-        "max_width_over_max_depth" : 1, 
-        "s_roof_shape" : math.log2(60),
+        "max_width_over_max_depth" : 1,
+        "s_shape" : math.log2(60),
         "cherry_index" : 2,
         "modified_cherry_index" : 2,
         "d_index": 1.52,
-        "cophenetic_index" : 18,
+        "total_cophenetic_index" : 18,
         "diameter" : 5,
         "area_per_pair_index" : 59 / 15,
         "root_imbalance" : 5 / 6,
@@ -83,7 +83,7 @@ class TestMetrics(unittest.TestCase):
         "corrected_colless_index" : 0.7,
         "quadratic_colless_index" : 25,
         "I_2_index" : 0.5,
-        "stairs1" : 2 / 5, 
+        "stairs1" : 2 / 5,
         "stairs2" : 69 /  100,
         "rogers_j_index" : 2,
         "symmetry_nodes_index" : 2,
@@ -108,16 +108,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 26 / 11,
         "B_1_index" : 17 / 6,
         "B_2_index" : 17 / 8,
-        "height" : 4,
-        "maximum_width" : 4,        
+        "maximum_depth" : 4,
+        "maximum_width" : 4,
         "maxdiff_widths" : 2,
         "modified_maxdiff_widths" : 2,
         "max_width_over_max_depth" : 1,
-        "s_roof_shape" : math.log2(40),
+        "s_shape" : math.log2(40),
         "cherry_index" : 2,
         "modified_cherry_index" : 2,
         "d_index": 1.08,
-        "cophenetic_index" : 15,
+        "total_cophenetic_index" : 15,
         "diameter" : 5,
         "area_per_pair_index" : 60 / 15,
         "root_imbalance" : 5 / 6,
@@ -151,16 +151,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 24 / 11,
         "B_1_index" : 17 / 6,
         "B_2_index" : 19 / 8,
-        "height" : 4,
+        "maximum_depth" : 4,
         "maximum_width" : 4,
         "maxdiff_widths" : 2,
         "modified_maxdiff_widths" : 2,
         "max_width_over_max_depth" : 1,
-        "s_roof_shape" : math.log2(30),
+        "s_shape" : math.log2(30),
         "cherry_index" :  2,
         "modified_cherry_index" : 2,
         "d_index": 0.72,
-        "cophenetic_index" : 11,
+        "total_cophenetic_index" : 11,
         "diameter" : 6,
         "area_per_pair_index" : 63 / 15,
         "root_imbalance" : 4 / 6,
@@ -194,16 +194,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 2,
         "B_1_index" :  3.5,
         "B_2_index" : 2.5,
-        "height" : 3,
+        "maximum_depth" : 3,
         "maximum_width" : 4,
         "maxdiff_widths" : 2,
         "modified_maxdiff_widths" : 2,
         "max_width_over_max_depth" : 4 / 3,
-        "s_roof_shape" : math.log2(15),
+        "s_shape" : math.log2(15),
         "cherry_index" :  3,
         "modified_cherry_index" : 0,
         "d_index": 1.72,
-        "cophenetic_index" : 9,
+        "total_cophenetic_index" : 9,
         "diameter" : 5,
         "area_per_pair_index" : 62 / 15,
         "root_imbalance" : 4 / 6,
@@ -237,16 +237,16 @@ class TestMetrics(unittest.TestCase):
         "average_vertex_depth" : 2,
         "B_1_index" : 3,
         "B_2_index" : 2.5,
-        "height" : 3,
+        "maximum_depth" : 3,
         "maximum_width" : 4,
         "maxdiff_widths" : 2,
         "modified_maxdiff_widths" : 2,
         "max_width_over_max_depth" : 4 / 3,
-        "s_roof_shape" : math.log2(20),
+        "s_shape" : math.log2(20),
         "cherry_index" : 2,
         "modified_cherry_index" : 2,
         "d_index": 1.48,
-        "cophenetic_index" : 8,
+        "total_cophenetic_index" : 8,
         "diameter" : 6,
         "area_per_pair_index" : 64 / 15,
         "root_imbalance" : 3 / 6,
@@ -276,16 +276,18 @@ class TestMetrics(unittest.TestCase):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
-            for metric_name in metrics.absolute_metrics:
-                self.assertAlmostEqual(metrics.absolute(metric_name, tree, "BINARY"), self.expected[test_tree_name][metric_name])
+            tb = TreeBalance(tree, "BINARY")
+            for index_name in indexlists.all_indices:
+                self.assertAlmostEqual(tb.absolute(index_name), self.expected[test_tree_name][metric_name])
 
     def test_relative_binary(self):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
-            for metric_name in metrics.absolute_metrics:
+            tb = TreeBalance(tree, "BINARY")
+            for index_name in indexlists.all_indices:
                 try:
-                    metrics.relative(metric_name, tree, "BINARY")
+                    tb.relative(index_name)
                 except ValueError as e:
                     #print(e)
                     continue
@@ -294,9 +296,10 @@ class TestMetrics(unittest.TestCase):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
-            for metric_name in metrics.absolute_metrics:
+            tb = TreeBalance(tree, "ARBITRARY")
+            for index_name in indexlists.all_indices:
                 try:
-                    metrics.relative(metric_name, tree, "ARBITRARY")
+                    tb.relative(index_name)
                 except ValueError as e:
                     #print(e)
                     continue

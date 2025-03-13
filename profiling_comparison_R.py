@@ -1,11 +1,14 @@
 from ete3 import Tree
-import metrics
 import time
 
+from treebalance import TreeBalance
+import indexlists
+
 tree =  Tree("data/virus/trees/rooted/covid_edited.rooted.tree")
+tb = TreeBalance(tree, "BINARY")
 start = time.time()
-for metric_name in metrics.R_metrics:
-    print(metric_name)
-    metrics.absolute(metric_name, tree, "BINARY")
+for index_name in indexlists.R_implemented_indices:
+    print(index_name)
+    tb.absolute(index_name)
 end = time.time()
 print("Metric Evaluation:", str(end - start))
