@@ -11,4 +11,4 @@ for index_name in indexlists.R_implemented_indices:
     print(index_name)
     tb.absolute(index_name)
 end = time.time()
-print("Metric Evaluation:", str(end - start))
+print("Index Evaluation:", str(end - start))

@@ -1,18 +1,26 @@
 from ete3 import Tree
-import metrics
+from treebalance import TreeBalance
+import indexlists
 
 tree =  Tree("A;")
-for metric_name in metrics.absolute_metrics:
-    print(metric_name)
+tb_b = TreeBalace(tree, "BINARY")
+tb_a = TreeBalace(tree, "ARBITRARY")
+
+for index_name in index_lists.all_indices:
+    print(index_name)
     try:
-        print(metrics.absolute(metric_name, tree, "BINARY"))
+        print(tb_b.absolute(index_name))
     except ValueError as e:
         print(e)
     try:
-        print(metrics.relative(metric_name, tree, "BINARY"))
+        print(tb_a.absolute(index_name))
     except ValueError as e:
         print(e)
     try:
-        print(metrics.relative(metric_name, tree, "ARBITRARY"))
+        print(tb_b.relative(index_name))
+    except ValueError as e:
+        print(e)
+    try:
+        print(tb_a.relative(index_name))
     except ValueError as e:
         print(e)
