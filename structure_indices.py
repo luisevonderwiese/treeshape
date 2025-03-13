@@ -6,16 +6,21 @@ from tree_index import TreeIndex
 
 class B1Index(TreeIndex):
     def evaluate(self, tree, mode):
-        s = 0
-        try: #check if heights already precomputed
-            tree.height
+        try:
+            return tree.B_1_index
         except AttributeError:
-            util.precompute_heights(tree)
-        for node in tree.iter_descendants("postorder"):
-            if node.is_leaf():
-                continue
-            s += 1/ node.height
-        return s
+            s = 0
+            try: #check if heights already precomputed
+                tree.height
+            except AttributeError:
+                util.precompute_heights(tree)
+            for node in tree.iter_descendants("postorder"):
+                if node.is_leaf():
+                    continue
+                s += 1/ node.height
+            tree.add_feature("B_1_index", s)
+            return tree.B_1_index
+
 
     def maximum(self, n, m, mode):
         return float('nan')
@@ -29,15 +34,19 @@ class B1Index(TreeIndex):
 
 class B2Index(TreeIndex):
     def evaluate(self, tree, mode):
-        s = 0
-        try: #check if probs are already precomputed
-            tree.prob
+        try:
+            return tree.B_2_index
         except AttributeError:
-            util.precompute_probs(tree)
-        for leaf in tree.iter_leaves():
-            p_leaf = leaf.prob
-            s += p_leaf * math.log2(p_leaf)
-        return - s
+            s = 0
+            try: #check if probs are already precomputed
+                tree.prob
+            except AttributeError:
+                util.precompute_probs(tree)
+            for leaf in tree.iter_leaves():
+                p_leaf = leaf.prob
+                s += p_leaf * math.log2(p_leaf)
+            tree.add_feature("B_2_index", - s)
+            return tree.B_2_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -56,11 +65,15 @@ class B2Index(TreeIndex):
 
 class SShape(TreeIndex):
     def evaluate(self, tree, mode):
-        s = 0
-        for node in tree.traverse("postorder"):
-            if not node.is_leaf():
-                s += math.log2(clade_size(tree, node) - 1)
-        return s
+        try:
+            return tree.s_shape
+        except AttributeError:
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    s += math.log2(clade_size(tree, node) - 1)
+            tree.add_feature("s_shape", s)
+            return tree.s_shape
 
     def maximum(self, n, m, mode):
         return math.log2(math.factorial(n - 1))
@@ -78,17 +91,22 @@ class SShape(TreeIndex):
 
 class DIndex(TreeIndex):
     def evaluate(self, tree, mode):
-        n = util.clade_size(tree, tree)
-        if n == 1:
-            return 0
-        f_n = Counter([util.clade_size(tree, node) for node in tree.traverse()])
-        num_inner_nodes = len([_ for _ in tree.traverse()]) - n
-        s = 0
-        for z in range(2, n):
-            p_n = (n / (n - 1)) * (2 / (z * (z + 1)))
-            s += z * abs(f_n[z] / num_inner_nodes - p_n)
-        s += n * abs(f_n[n] / num_inner_nodes - (1 / (n - 1)))
-        return s
+        try:
+            return tree.d_index
+        except AttributeError:
+            n = util.clade_size(tree, tree)
+            if n == 1:
+                tree.add_feature("d_index", 0)
+            else:
+                f_n = Counter([util.clade_size(tree, node) for node in tree.traverse()])
+                num_inner_nodes = len([_ for _ in tree.traverse()]) - n
+                s = 0
+                for z in range(2, n):
+                    p_n = (n / (n - 1)) * (2 / (z * (z + 1)))
+                    s += z * abs(f_n[z] / num_inner_nodes - p_n)
+                s += n * abs(f_n[n] / num_inner_nodes - (1 / (n - 1)))
+                tree.add_feature("d_index", s)
+            return tree.d_index
 
     def maximum(self, n, m, mode):
         return float("nan")

@@ -6,8 +6,12 @@ from tree_index import TreeIndex
 
 class AverageLeafDepth(TreeIndex):
     def evaluate(self, tree, mode):
-        depths = util.leaf_depths(tree)
-        return sum(depths) / len(depths)
+        try:
+            return tree.average_leaf_depth
+        except AttributeError:
+            depths = util.leaf_depths(tree)
+            tree.add_feature("average_leaf_depth", sum(depths) / len(depths))
+            return tree.average_leaf_depth
 
     def maximum(self, n, m, mode):
         return m - (((m - 1) * m) / (2 * n))
@@ -23,7 +27,11 @@ class AverageLeafDepth(TreeIndex):
 
 class VarianceOfLeavesDepths(TreeIndex):
     def evaluate(self, tree, mode):
-        return np.var(util.leaf_depths(tree))
+        try:
+            return tree.variance_of_leaves_depths
+        except AttributeError:
+            tree.add_feature("variance_of_leaves_depths", np.var(util.leaf_depths(tree)))
+            return tree.variance_of_leaves_depths
 
     def maximum(self, n, m, mode):
         return ((n - 1) * (n - 2) * (n*n + 3*n -6)) / (12 * n * n)
@@ -40,7 +48,11 @@ class VarianceOfLeavesDepths(TreeIndex):
 
 class SackinIndex(TreeIndex):
     def evaluate(self, tree, mode):
-        return sum(util.leaf_depths(tree))
+        try:
+            return tree.sackin_index
+        except AttributeError:
+            tree.add_feature("sackin_index", sum(util.leaf_depths(tree)))
+            return tree.sackin_index
 
     def maximum(self, n, m, mode):
         return (n * m) - (((m - 1) * m) / 2)
@@ -56,7 +68,11 @@ class SackinIndex(TreeIndex):
 
 class TotalPathLength(TreeIndex):
     def evaluate(self, tree, mode):
-        return sum([util.depth(tree, node) for node in tree.traverse("postorder")])
+        try:
+            return tree.total_path_length
+        except AttributeError:
+            tree.add_feature("total_path_length", sum([util.depth(tree, node) for node in tree.traverse("postorder")]))
+            return tree.total_path_length
 
     def maximum(self, n, m, mode):
         return (n * n) - n
@@ -76,11 +92,15 @@ class TotalPathLength(TreeIndex):
 
 class TotalInternalPathLength(TreeIndex):
     def evaluate(self, tree, mode):
-        s = 0
-        for node in tree.iter_descendants("postorder"):
-            if not node.is_leaf():
-                s += util.depth(tree, node)
-        return s
+        try:
+            return tree.total_internal_path_length
+        except AttributeError:
+            s = 0
+            for node in tree.iter_descendants("postorder"):
+                if not node.is_leaf():
+                    s += util.depth(tree, node)
+            tree.add_feature("total_internal_path_length", s)
+            return tree.total_internal_path_length
 
     def maximum(self, n, m, mode):
         return ((n - 1) * (n - 2)) / 2
@@ -98,8 +118,12 @@ class TotalInternalPathLength(TreeIndex):
 
 class AverageVertexDepth(TreeIndex):
     def evaluate(self, tree, mode):
-        depths = [util.depth(tree, node) for node in tree.traverse("postorder")]
-        return sum(depths) / len(depths)
+        try:
+            return tree.average_vertex_depth
+        except AttributeError:
+            depths = [util.depth(tree, node) for node in tree.traverse("postorder")]
+            tree.add_feature("average_vertex_depth", sum(depths) / len(depths))
+            return tree.average_vertex_depth
 
     def maximum(self, n, m, mode):
         return ((n * n) - n) / (2 * n - 1)
@@ -119,7 +143,11 @@ class AverageVertexDepth(TreeIndex):
 
 class MaximumDepth(TreeIndex):
     def evaluate(self, tree, mode):
-        return max(util.leaf_depths(tree))
+        try:
+            return tree.maximum_depth
+        except AttributeError:
+            tree.add_feature("average_vertex_depth", max(util.leaf_depths(tree)))
+            return tree.maximum_depth
 
     def maximum(self, n, m, mode):
         return n - 1

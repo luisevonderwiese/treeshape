@@ -6,12 +6,16 @@ from tree_index import TreeIndex
 class CollessIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        s = 0
-        for node in tree.traverse("postorder"):
-            if not node.is_leaf():
-                s += util.balance_index(tree, node)
-        return s
+            raise ValueError("colless_index is not defined for arbitrary trees")
+        try:
+            return tree.colless_index
+        except AttributeError:
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    s += util.balance_index(tree, node)
+            tree.add_feature("colless_index", s)
+            return tree.colless_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -38,11 +42,16 @@ class CollessIndex(TreeIndex):
 class CorrectedCollessIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        if tree.is_leaf():
-            return 0
-        n = util.clade_size(tree, tree)
-        return (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2))
+            raise ValueError("corrected_colless_index is not defined for arbitrary trees")
+        try:
+            return tree.corrected_colless_index
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2)))
+            else:
+                n = util.clade_size(tree, tree)
+                tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2)))
+            return tree.corrected_colless_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -67,13 +76,17 @@ class CorrectedCollessIndex(TreeIndex):
 class QuadraticCollessIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        s = 0
-        for node in tree.traverse("postorder"):
-            if not node.is_leaf():
-                b = balance_index(tree, node)
-                s += b * b
-        return s
+            raise ValueError("quadratic_colless_index is not defined for arbitrary trees")
+        try:
+            return tree.quadratic_colless_index
+        except AttributeError:
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    b = balance_index(tree, node)
+                    s += b * b
+            tree.add_feature("quadratic_colless_index", s)
+            return tree.quadratic_colless_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -100,15 +113,22 @@ class QuadraticCollessIndex(TreeIndex):
 class I2Index(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        n = util.clade_size(tree, tree)
-        s = 0
-        for node in tree.traverse("postorder"):
-            n_v = util.clade_size(tree, node)
-            if n_v > 2:
-                b = util.balance_index(tree, node)
-                s += b / (n_v - 2)
-        return s / (n - 2)
+            raise ValueError("I_2_index is not defined for arbitrary trees")
+        try:
+            return tree.I_2_index
+        except AttributeError:
+            n = util.clade_size(tree, tree)
+            if n <= 2:
+                tree.add_feature("I_2_index", 0)
+            else:
+                s = 0
+                for node in tree.traverse("postorder"):
+                    n_v = util.clade_size(tree, node)
+                    if n_v > 2:
+                        b = util.balance_index(tree, node)
+                        s += b / (n_v - 2)
+                tree.add_feature("I_2_index", s / (n - 2))
+            return tree.I_2_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -128,10 +148,15 @@ class I2Index(TreeIndex):
 class Stairs1(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        if tree.is_leaf():
-            return 0
-        return RogersJIndex().evaluate(tree, mode) /  (util.clade_size(tree, tree)- 1)
+            raise ValueError("stairs1 is not defined for arbitrary trees")
+        try:
+            return tree.stairs1
+        except AttributeError:
+            if tree.is_leaf():
+                return tree.add_feature("stairs1", 0)
+            else:
+                tree.add_feature("stairs1", RogersJIndex().evaluate(tree, mode) /  (util.clade_size(tree, tree)- 1))
+            return tree.stairs1
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -156,19 +181,24 @@ class Stairs1(TreeIndex):
 class Stairs2(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        if tree.is_leaf():
-            return 0
-        s = 0
-        for node in tree.traverse("postorder"):
-            if node.is_leaf():
-                continue
-            c = node.children
-            assert (len(c) == 2)
-            n0 = util.clade_size(tree, c[0])
-            n1 = util.clade_size(tree, c[1])
-            s += min(n0, n1) / max(n0, n1)
-        return s / (util.clade_size(tree, tree) - 1)
+            raise ValueError("stairs2 is not defined for arbitrary trees")
+        try:
+            return tree.stairs2
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("stairs2", 0)
+            else:
+                s = 0
+                for node in tree.traverse("postorder"):
+                    if node.is_leaf():
+                        continue
+                    c = node.children
+                    assert (len(c) == 2)
+                    n0 = util.clade_size(tree, c[0])
+                    n1 = util.clade_size(tree, c[1])
+                    s += min(n0, n1) / max(n0, n1)
+                tree.add_feature("stairs2", s / (util.clade_size(tree, tree) - 1))
+            return tree.stairs2
 
     def maximum(self, n, m, mode):
         return float('nan')
@@ -183,13 +213,17 @@ class Stairs2(TreeIndex):
 class RogersJIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        s = 0
-        for node in tree.traverse("postorder"):
-            if not node.is_leaf():
-                if util.balance_index(tree, node) != 0:
-                    s += 1
-        return s
+            raise ValueError("rogers_j_index is not defined for arbitrary trees")
+        try:
+            return tree.rogers_j_index
+        except AttributeError:
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    if util.balance_index(tree, node) != 0:
+                        s += 1
+            tree.add_feature("rogers_j_index", s)
+            return tree.rogers_j_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -212,15 +246,19 @@ class RogersJIndex(TreeIndex):
 class SymmetryNodesIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
-        cnt = 0
-        for node in tree.traverse("postorder"):
-            if not node.is_leaf():
-                c = node.children
-                assert (len(c) == 2)
-                if not util.isomorphic(c[0], c[1]):
-                    cnt += 1
-        return cnt
+            raise ValueError("symmetry_nodes_index is not defined for arbitrary trees")
+        try:
+            return tree.symmetry_nodes_index
+        except AttributeError:
+            cnt = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    c = node.children
+                    assert (len(c) == 2)
+                    if not util.isomorphic(c[0], c[1]):
+                        cnt += 1
+            tree.add_feature("symmetry_nodes_index", cnt)
+            return tree.symmetry_nodes_index
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":

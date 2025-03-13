@@ -7,11 +7,16 @@ class RootImbalance(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
             raise ValueError(metric_name + " is not defined for arbitrary trees")
-        if tree.is_leaf(): #single-node-tree
-            return 0
-        c = tree.children
-        assert (len(c) == 2)
-        return max(util.clade_size(tree, c[0]), util.clade_size(tree, c[1])) / util.clade_size(tree, tree)
+        try:
+            return tree.root_imbalance
+        except AttributeError:
+            if tree.is_leaf(): #single-node-tree
+                tree.add_feature("root_imbalance", 0)
+            else:
+                c = tree.children
+                assert (len(c) == 2)
+                tree.add_feature("root_imbalance", max(util.clade_size(tree, c[0]), util.clade_size(tree, c[1])) / util.clade_size(tree, tree))
+            return tree.root_imbalance
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
@@ -30,13 +35,19 @@ class RootImbalance(TreeIndex):
     def imbalance(self):
         return 0
 
+
 class IRoot(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
             raise ValueError(metric_name + " is not defined for arbitrary trees")
-        if tree.is_leaf(): #single-node-tree
-            return 0
-        return util.I_value(tree, tree)
+        try:
+            return tree.I_root
+        except AttributeError:
+            if tree.is_leaf(): #single-node-tree
+                tree.add_feature("I_root", 0)
+            else:
+                tree.add_feature("I_root", util.I_value(tree, tree))
+            return tree.I_root
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":

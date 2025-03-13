@@ -5,11 +5,15 @@ from tree_index import TreeIndex
 
 class TotalCopheneticIndex(TreeIndex):
     def evaluate(self, tree, mode):
-        s = 0
-        for node in tree.iter_descendants("postorder"):
-            if not node.is_leaf():
-                s += math.comb(util.clade_size(tree, node), 2)
-        return s
+        try:
+            return tree.total_cophenetic_index
+        except AttributeError:
+            s = 0
+            for node in tree.iter_descendants("postorder"):
+                if not node.is_leaf():
+                    s += math.comb(util.clade_size(tree, node), 2)
+            tree.add_feature("total_cophenetic_index", s)
+            return tree.total_cophenetic_index
 
     def maximum(self, n, m, mode):
         return math.comb(n, 3)

@@ -96,38 +96,38 @@ def we(x):
         raise NotImplementedError("WE Number not provided for " + str(x))
     return lookup[x]
 
-def furnas_ranks(tree):
+def furnas_rank_ranks(tree):
     for node in tree.traverse("postorder"):
         if node.is_leaf():
-            node.add_feature("furnas", 1)
+            node.add_feature("furnas_rank", 1)
             continue
         c = node.children
         assert (len(c) == 2)
         if clade_size(tree, c[0]) <= clade_size(tree, c[1]):
-            f_l = c[0].furnas
+            f_l = c[0].furnas_rank
             alpha = clade_size(tree, c[0])
-            f_r = c[1].furnas
+            f_r = c[1].furnas_rank
             beta = clade_size(tree, c[1])
         else:
-            f_l = c[1].furnas
+            f_l = c[1].furnas_rank
             alpha = clade_size(tree, c[1])
-            f_r = c[0].furnas
+            f_r = c[0].furnas_rank
             beta = clade_size(tree, c[0])
         s = 0
         for i in range(1, alpha):
             try:
                 s += we(i) * we(clade_size(tree, node) - i)
             except NotImplementedError:
-                node.add_feature("furnas", float("nan"))
+                node.add_feature("furnas_rank", float("nan"))
                 continue
         try:
             s += (f_l - 1) * we(beta) + f_r
         except NotImplementedError:
-            node.add_feature("furnas", float("nan"))
+            node.add_feature("furnas_rank", float("nan"))
             continue
         if alpha == beta:
             s -= (f_l * f_l - f_l) / 2
-        node.add_feature("furnas", s)
+        node.add_feature("furnas_rank", s)
 
 
 def isomorphic(v1, v2):
@@ -217,7 +217,7 @@ def precompute_rqi(tree):
     for node in tree.traverse("postorder"):
         if node.is_leaf():
             node.add_feature("ypsilon", 0)
-            node.add_feature("rqi", 0)
+            node.add_feature("rooted_quartet_index", 0)
             continue
         n_v = clade_size(tree, node)
         c = node.children
@@ -225,28 +225,28 @@ def precompute_rqi(tree):
         E3 = E_l(3, ccs)
         E4 = E_l(4, ccs)
         node.add_feature("ypsilon", sum([child.ypsilon for child in c]) + E3)
-        rqi = sum([child.rqi for child in c])
+        rqi = sum([child.rooted_quartet_index for child in c])
         rqi += q[4] * E4 #star
         rqi += q[3] * E_l(2, [math.comb(cs, 2) for cs in ccs]) #fully balanced
         rqi += q[2] * (clade_size(tree, node) * (node.ypsilon - E3) - \
                 sum([clade_size(tree, child) * child.ypsilon for child in c])) #3-pitchfork  + 1
         rqi += q[1] * (0.5 * E3 * E_l(1, ccs) - 2 * E4 - 1.5 * E3) # cherry + 2
-        node.add_feature("rqi", rqi)
-    tree.rqi = tree.rqi + q[0] * math.comb(clade_size(tree, tree), 4)
+        node.add_feature("rooted_quartet_index", rqi)
+    tree.rooted_quartet_index = tree.rooted_quartet_index + q[0] * math.comb(clade_size(tree, tree), 4)
 
 
 def colijn_plazotta_recursive(node):
     if node.is_leaf():
-        node.add_feature("cp", 1)
+        node.add_feature("colijn_plazotta_rank", 1)
         return
     c = node.children
     assert len(c) == 2
     colijn_plazotta_recursive(c[0])
     colijn_plazotta_recursive(c[1])
-    if c[0].cp >= c[1].cp:
-        node.add_feature("cp", 0.5 * c[0].cp * (c[0].cp - 1) + c[1].cp + 1)
+    if c[0].colijn_plazotta_rank >= c[1].colijn_plazotta_rank:
+        node.add_feature("colijn_plazotta_rank", 0.5 * c[0].colijn_plazotta_rank * (c[0].colijn_plazotta_rank - 1) + c[1].colijn_plazotta_rank + 1)
     else:
-        node.add_feature("cp", 0.5 * c[1].cp * (c[1].cp - 1) + c[0].cp + 1)
+        node.add_feature("colijn_plazotta_rank", 0.5 * c[1].colijn_plazotta_rank * (c[1].colijn_plazotta_rank - 1) + c[0].colijn_plazotta_rank + 1)
 
 
 def is_bifurcating(tree):

@@ -7,18 +7,23 @@ from cophenetic_indices import TotalCopheneticIndex
 
 class Diameter(TreeIndex):
     def evaluate(self, tree, mode):
-        if tree.is_leaf(): #single-node-tree
-            return 0
-        max_d = 0
-        deepest_leaf = None
-        for leaf in tree.iter_leaves():
-            if util.depth(tree, leaf) > max_d:
-                max_d = util.depth(tree, leaf)
-                deepest_leaf = leaf
-        max_d = 0
-        for leaf in tree.iter_leaves():
-            max_d = max(max_d, util.connecting_path_length(tree, deepest_leaf, leaf))
-        return max_d
+        try:
+            return tree.diameter
+        except AttributeError:
+            if tree.is_leaf(): #single-node-tree
+                tree.add_feature("diameter", max_d)
+            else:
+                max_d = 0
+                deepest_leaf = None
+                for leaf in tree.iter_leaves():
+                    if util.depth(tree, leaf) > max_d:
+                        max_d = util.depth(tree, leaf)
+                        deepest_leaf = leaf
+                    max_d = 0
+                for leaf in tree.iter_leaves():
+                    max_d = max(max_d, util.connecting_path_length(tree, deepest_leaf, leaf))
+                tree.add_feature("diameter", max_d)
+            return tree.diameter
 
     def maximum(self, n, m, mode):
         return n
@@ -37,12 +42,17 @@ class Diameter(TreeIndex):
 
 class AreaPerPairIndex(TreeIndex):
     def evaluate(self, tree, mode):
-        n = util.clade_size(tree, tree)
-        if n == 1:
-            return 0
-        s = SackinIndex().evaluate(tree, mode)
-        c = TotalCopheneticIndex().evaluate(tree, mode)
-        return  2 / n * s - 4 / (n * (n - 1)) * c
+        try:
+            return tree.area_per_pair_index
+        except AttributeError:
+            n = util.clade_size(tree, tree)
+            if n == 1:
+                tree.add_feature("area_per_pair_index", 0)
+            else:
+                s = SackinIndex().evaluate(tree, mode)
+                c = TotalCopheneticIndex().evaluate(tree, mode)
+                tree.add_feature("area_per_pair_index", 2 / n * s - 4 / (n * (n - 1)) * c)
+            return tree.area_per_pair_index
 
     def maximum(self, n, m, mode):
         return float('nan')
