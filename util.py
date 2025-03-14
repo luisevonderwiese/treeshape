@@ -96,7 +96,7 @@ def we(x):
         raise NotImplementedError("WE Number not provided for " + str(x))
     return lookup[x]
 
-def furnas_rank_ranks(tree):
+def furnas_ranks(tree):
     for node in tree.traverse("postorder"):
         if node.is_leaf():
             node.add_feature("furnas_rank", 1)

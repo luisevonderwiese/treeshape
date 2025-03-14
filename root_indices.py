@@ -6,7 +6,7 @@ from tree_index import TreeIndex
 class RootImbalance(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("root_imbalance is not defined for arbitrary trees")
         try:
             return tree.root_imbalance
         except AttributeError:
@@ -39,7 +39,7 @@ class RootImbalance(TreeIndex):
 class IRoot(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("I_root is not defined for arbitrary trees")
         try:
             return tree.I_root
         except AttributeError:

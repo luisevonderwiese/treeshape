@@ -47,7 +47,7 @@ class CorrectedCollessIndex(TreeIndex):
             return tree.corrected_colless_index
         except AttributeError:
             if tree.is_leaf():
-                tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2)))
+                tree.add_feature("corrected_colless_index", 0)
             else:
                 n = util.clade_size(tree, tree)
                 tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2)))
@@ -65,7 +65,7 @@ class CorrectedCollessIndex(TreeIndex):
         if mode == "BINARY":
             if n <= 2:
                 return 0
-            return (2 / ((n - 1) * (n - 2))) * minimum("colless_index", n, m, mode)
+            return (2 / ((n - 1) * (n - 2))) * CollessIndex().minimum(n, m, mode)
         if mode == "ARBITRARY":
             return float("nan")
 
@@ -83,7 +83,7 @@ class QuadraticCollessIndex(TreeIndex):
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
-                    b = balance_index(tree, node)
+                    b = util.balance_index(tree, node)
                     s += b * b
             tree.add_feature("quadratic_colless_index", s)
             return tree.quadratic_colless_index

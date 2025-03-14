@@ -3,10 +3,10 @@ from treebalance import TreeBalance
 import indexlists
 
 tree =  Tree("A;")
-tb_b = TreeBalace(tree, "BINARY")
-tb_a = TreeBalace(tree, "ARBITRARY")
+tb_b = TreeBalance(tree, "BINARY")
+tb_a = TreeBalance(tree, "ARBITRARY")
 
-for index_name in index_lists.all_indices:
+for index_name in indexlists.all_indices:
     print(index_name)
     try:
         print(tb_b.absolute(index_name))

@@ -71,7 +71,7 @@ class SShape(TreeIndex):
             s = 0
             for node in tree.traverse("postorder"):
                 if not node.is_leaf():
-                    s += math.log2(clade_size(tree, node) - 1)
+                    s += math.log2(util.clade_size(tree, node) - 1)
             tree.add_feature("s_shape", s)
             return tree.s_shape
 

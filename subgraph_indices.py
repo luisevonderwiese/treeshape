@@ -36,11 +36,11 @@ class CherryIndex(TreeIndex):
 class ModifiedCherryIndex(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("modified_cherry_index is not defined for arbitrary trees")
         try:
             return tree.modified_cherry_index
         except AttributeError:
-            tree.add_feature("modified_cherry_index", clade_size(tree, tree) - 2 * CherryIndex().evaluate(tree, mode))
+            tree.add_feature("modified_cherry_index", util.clade_size(tree, tree) - 2 * CherryIndex().evaluate(tree, mode))
             return tree.modified_cherry_index
 
     def maximum(self, n, m, mode):
@@ -52,7 +52,6 @@ class ModifiedCherryIndex(TreeIndex):
             return float("nan")
 
     def minimum(self, n, m, mode):
-        case "modified_cherry_index":
         if mode == "BINARY":
             return n % 2
         if mode == "ARBITRARY":

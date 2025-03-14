@@ -146,7 +146,7 @@ class MaximumDepth(TreeIndex):
         try:
             return tree.maximum_depth
         except AttributeError:
-            tree.add_feature("average_vertex_depth", max(util.leaf_depths(tree)))
+            tree.add_feature("maximum_depth", max(util.leaf_depths(tree)))
             return tree.maximum_depth
 
     def maximum(self, n, m, mode):

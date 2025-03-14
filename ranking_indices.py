@@ -5,7 +5,7 @@ from tree_index import TreeIndex
 class ColijnPlazottaRank(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("colijn_plazotta_rank is not defined for arbitrary trees")
         try:
             return tree.colijn_plazotta_rank
         except AttributeError:
@@ -25,7 +25,7 @@ class ColijnPlazottaRank(TreeIndex):
 class FurnasRank(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("furnas_rank is not defined for arbitrary trees")
         try:
             return tree.furnas_rank #check if furnas ranks already precomputed
         except AttributeError:

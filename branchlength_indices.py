@@ -8,7 +8,7 @@ class Treeness(TreeIndex):
             return tree.treeness
         except AttributeError:
             if tree.is_leaf():
-                tree.add_feature("treeness", internal_brlens / all_brlens)#
+                tree.add_feature("treeness", 0)
             else:
                 all_brlens = 0
                 internal_brlens = 0
@@ -51,7 +51,7 @@ class Stemminess(TreeIndex):
                         node.add_feature("sum_below", s)
                         if s == 0:
                             continue
-                    values.append(d / s)
+                        values.append(d / s)
                 tree.add_feature("stemminess", sum(values) / len(values))
             return tree.stemminess
 

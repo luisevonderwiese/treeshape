@@ -9,7 +9,6 @@ import indexlists
 
 class TestMetrics(unittest.TestCase):
     test_tree_dir = "test_data"
-    #test_tree_names = ["fischer2"]
     test_tree_names = ["fischer1", "fischer2", "fischer3", "fischer4", "fischer5", "fischer6"]
 
     expected = {}
@@ -278,7 +277,7 @@ class TestMetrics(unittest.TestCase):
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeBalance(tree, "BINARY")
             for index_name in indexlists.all_indices:
-                self.assertAlmostEqual(tb.absolute(index_name), self.expected[test_tree_name][metric_name])
+                self.assertAlmostEqual(tb.absolute(index_name), self.expected[test_tree_name][index_name])
 
     def test_relative_binary(self):
         test_trees = {}

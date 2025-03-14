@@ -5,7 +5,7 @@ from tree_index import TreeIndex
 class MeanI(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("mean_I is not defined for arbitrary trees")
         try:
             return tree.mean_I
         except AttributeError:
@@ -29,7 +29,7 @@ class MeanI(TreeIndex):
 class TotalI(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("total_I is not defined for arbitrary trees")
         try:
             return tree.total_I
         except AttributeError:
@@ -52,7 +52,7 @@ class TotalI(TreeIndex):
 class MeanIPrime(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("mean_I_prime is not defined for arbitrary trees")
         try:
             return tree.mean_I_prime
         except AttributeError:
@@ -76,7 +76,7 @@ class MeanIPrime(TreeIndex):
 class TotalIPrime(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("total_I_prime is not defined for arbitrary trees")
         try:
             return tree.total_I_prime
         except AttributeError:
@@ -99,7 +99,7 @@ class TotalIPrime(TreeIndex):
 class MeanIW(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("mean_I_w is not defined for arbitrary trees")
         try:
             return tree.mean_I_w
         except AttributeError:
@@ -108,7 +108,7 @@ class MeanIW(TreeIndex):
             else:
                 sw = util.I_weight_sum(tree)
                 values = util.I_values(tree, "I_w", sw)
-                tree.add_feature("mean_I", sum(values) / len(values))
+                tree.add_feature("mean_I_w", sum(values) / len(values))
             return tree.mean_I_w
 
     def maximum(self, n, m, mode):
@@ -124,7 +124,7 @@ class MeanIW(TreeIndex):
 class TotalIW(TreeIndex):
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
-            raise ValueError(metric_name + " is not defined for arbitrary trees")
+            raise ValueError("total_I_w is not defined for arbitrary trees")
         try:
             return tree.total_I_w
         except AttributeError:

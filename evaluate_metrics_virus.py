@@ -21,7 +21,7 @@ for i, row in df.iterrows():
     for index_name in indexlists.all_indices:
         print(index_name)
         try:
-            df.at[i, metric_name] = round(tb.relative(index_name), 3)
+            df.at[i, index_name] = round(tb.relative(index_name), 3)
         except ValueError as e:
             print(e)
             continue

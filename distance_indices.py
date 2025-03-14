@@ -11,7 +11,7 @@ class Diameter(TreeIndex):
             return tree.diameter
         except AttributeError:
             if tree.is_leaf(): #single-node-tree
-                tree.add_feature("diameter", max_d)
+                tree.add_feature("diameter", 0)
             else:
                 max_d = 0
                 deepest_leaf = None
@@ -19,7 +19,7 @@ class Diameter(TreeIndex):
                     if util.depth(tree, leaf) > max_d:
                         max_d = util.depth(tree, leaf)
                         deepest_leaf = leaf
-                    max_d = 0
+                max_d = 0
                 for leaf in tree.iter_leaves():
                     max_d = max(max_d, util.connecting_path_length(tree, deepest_leaf, leaf))
                 tree.add_feature("diameter", max_d)

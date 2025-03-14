@@ -13,6 +13,7 @@ import vertexbalance_indices
 import Ibased_indices
 import ranking_indices
 import branchlength_indices
+import util
 
 
 class TreeBalance:
@@ -21,6 +22,7 @@ class TreeBalance:
             raise ValueError(f"Unknown mode: {mode}")
         if mode == "BINARY" and not util.is_bifurcating(tree):
             raise ValueError("BINARY mode only possible for strictly bifurcating trees")
+        self.mode = mode
         self.tree = tree
         self.n = util.clade_size(tree, tree)
         if mode == "BINARY":
@@ -29,7 +31,7 @@ class TreeBalance:
             self.m = len([node for node in tree.traverse()]) - self.n
         self.indices = {}
 
-    def index(index_name):
+    def index(self, index_name):
         if index_name not in self.indices:
             instance = self.index_instance(index_name)
             if instance is None:
@@ -37,17 +39,17 @@ class TreeBalance:
             self.indices[index_name] = instance
         return self.indices[index_name]
 
-    def absolute(index_name):
+    def absolute(self, index_name):
         return self.index(index_name).evaluate(self.tree, self.mode)
 
-    def relative(index_name, tree, mode):
+    def relative(self, index_name):
         v = self.absolute(index_name)
-        min_v = self.index(index_name).minimum(self.tree, self.n, self.m, self.mode)
-        max_v = self.index(index_name).maximum(self.tree, self.n, self.m, self.mode)
+        min_v = self.index(index_name).minimum(self.n, self.m, self.mode)
+        max_v = self.index(index_name).maximum(self.n, self.m, self.mode)
         if math.isnan(min_v) or math.isnan(max_v):
-            raise ValueError(index_name + " cannot be normalized for " + mode.lower() + " trees")
+            raise ValueError(index_name + " cannot be normalized for " + self.mode.lower() + " trees")
         if min_v == max_v:
-            raise ValueError("Minimum equals maximum for " + index_name +  " for " + mode.lower() + " trees")
+            raise ValueError("Minimum equals maximum for " + index_name +  " for " + self.mode.lower() + " trees")
         if max_v - v < -0.00001:
             raise ArithmeticError("Value above maximum for " + index_name)
         if v - min_v < -0.00001:
@@ -55,7 +57,7 @@ class TreeBalance:
         return (v - min_v) / (max_v - min_v)
 
 
-    def relative_normalized(index_name):
+    def relative_normalized(self, index_name):
         rel = self.relative(index_name)
         factor = self.index(index_name).imbalance()
         if factor == 0:
@@ -66,10 +68,10 @@ class TreeBalance:
         return rel # index is an imbalance index
 
 
-    def index_instance(index_name):
+    def index_instance(self, index_name):
         match index_name:
             case "average_leaf_depth":
-                return depth_indices.AverageVertexDepth()
+                return depth_indices.AverageLeafDepth()
             case "variance_of_leaves_depths":
                 return depth_indices.VarianceOfLeavesDepths()
             case "sackin_index":
@@ -143,9 +145,9 @@ class TreeBalance:
             case "total_I_w":
                 return Ibased_indices.TotalIW()
             case "colijn_plazotta_rank":
-                return rank_indices.ColijnPlazottaRank()
+                return ranking_indices.ColijnPlazottaRank()
             case "furnas_rank":
-                return rank_indices.FurnasRank()
+                return ranking_indices.FurnasRank()
             case "treeness":
                 return branchlength_indices.Treeness()
             case "stemminess":
