@@ -1,3 +1,5 @@
+import numpy as np
+
 import util
 
 from tree_index import TreeIndex
@@ -62,3 +64,78 @@ class AreaPerPairIndex(TreeIndex):
 
     def imbalance(self):
         return 0
+
+class MeanPairwiseDistance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_pairwise_distance
+        except AttributeError:
+            leaves = tree.get_leaves()
+            try:
+                leaves[0].pw_distances_edges
+            except AttributeError:
+                util.precompute_pw_distances_edges(tree)
+            distances = []
+            for leaf in leaves:
+                distances += leaf.pw_distances_edges.values()
+            tree.add_feature("mean_pairwise_distance", sum(distances) / len(distances))
+            return tree.mean_pairwise_distance
+
+    def maximum(self, n, m, mode):
+        return float('nan') 
+
+    def minimum(self, n, m, mode):
+        return float('nan') 
+
+    def imbalance(self):
+        return 1
+
+class PairwiseDistanceVariance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.pairwise_distance_variance
+        except AttributeError:
+            leaves = tree.get_leaves()
+            try:
+                leaves[0].pw_distances_edges
+            except AttributeError:
+                util.precompute_pw_distances_edges(tree)
+            distances = []
+            for leaf in leaves:
+                distances += leaf.pw_distances_edges.values()
+            tree.add_feature("pairwise_distance_variance", np.var(distances))
+            return tree.pairwise_distance_variance
+
+    def maximum(self, n, m, mode):
+        return float('nan')
+
+    def minimum(self, n, m, mode):
+        return float('nan')
+
+    def imbalance(self):
+        return 1
+
+class MeanLeafDistance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_leaf_distance
+        except AttributeError:
+            try:
+                tree.leaf_distance
+            except AttributeError:
+                util.precompute_leaf_distances(tree)
+            distances = []
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    distances.append(node.leaf_distance)
+            tree.add_feature("mean_leaf_distance", sum(distances) / len(distances))
+            return tree.mean_leaf_distance
+
+    def maximum(self, n, m, mode):
+        return float('nan')
+
+    def minimum(self, n, m, mode):
+        return float('nan')
+
+    def imbalance(self):
+        return 1

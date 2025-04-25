@@ -40,6 +40,63 @@ def depths_recursive(tree):
         if not child.is_leaf():
             depths_recursive(child)
 
+
+def precompute_ladder_lengths(tree):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("ladder_length", 0)
+            continue
+        c = node.children
+        assert len(c)==2 #only defined for bifurcating trees
+        if c[0].is_leaf():
+            node.add_feature("ladder_length", c[1].ladder_length + 1)
+        elif c[1].is_leaf():
+            node.add_feature("ladder_length", c[0].ladder_length + 1)
+        else: #not part of a ladder
+            node.add_feature("ladder_length", 0)
+    for node in tree.traverse("preorder"):
+        if node.is_leaf() or node.ladder_length == 0:
+            continue
+        for c in node.children:
+            if c.ladder_length != 0:
+                c.ladder_length = node.ladder_length
+
+def precompute_pw_distances_brlens(tree):
+    leaves = tree.get_leaves()
+    for i, leaf1 in enumerate(leaves):
+        leaf1.add_feature("pw_distances_brlens", {})
+        for j in range(i+1, len(leaves)):
+            leaf2 = leaves[j]
+            leaf1.pw_distances_brlens[leaf2] = leaf1.get_distance(leaf2)
+
+def precompute_lcas(tree):
+    leaves = tree.get_leaves()
+    for i, leaf1 in enumerate(leaves):
+        leaf1.add_feature("lcas", {})
+        for j in range(i+1, len(leaves)):
+            leaf2 = leaves[j]
+            leaf1.lcas[leaf2] = tree.get_common_ancestor(leaf1, leaf2)
+
+def precompute_pw_distances_edges(tree):
+    leaves = tree.get_leaves()
+    try: 
+        leaves[0].lcas
+    except AttributeError:
+        precompute_lcas(tree)
+    for i, leaf1 in enumerate(leaves):
+        leaf1.add_feature("pw_distances_edges", {})
+        for j in range(i+1, len(leaves)):
+            leaf2 = leaves[j]
+            lca = leaf1.lcas[leaf2]
+            leaf1.pw_distances_edges[leaf2] = depth(tree, leaf1) + depth(tree, leaf2) - 2 * depth(tree, lca)
+
+def precompute_leaf_distances(tree):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("leaf_distance", 0)
+        else:
+            node.add_feature("leaf_distance", min([c.leaf_distance for c in node.children]) + 1)
+
 def widths(tree):
     return Counter([depth(tree, v) for v in tree.traverse("postorder")])
 
@@ -61,6 +118,21 @@ def balance_index(tree, v):
     c = v.children
     assert (len(c) == 2)
     return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
+
+def blum_value(tree, v):
+    assert not v.is_leaf()
+    return math.log2(clade_size(v, tree) - 1)
+
+def j_one_value(tree, v):
+    assert not v.is_leaf()
+    v_children = v.children
+    num_children = len(v_children)
+    s = 0
+    n_v = clade_size(tree, v)
+    for c in v_children:
+        n_c = clade_size(tree, c)
+        s += n_c * math.log(n_c / n_v, num_children)
+    return s
 
 def precompute_probs(tree):
     tree.add_feature("prob", 1)

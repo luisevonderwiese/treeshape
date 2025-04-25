@@ -1,0 +1,10 @@
+name: tree-metrics
+channels:
+  - conda-forge
+  - anaconda
+dependencies:
+  - pandas
+  - numpy
+  - pip:
+    - ete3
+

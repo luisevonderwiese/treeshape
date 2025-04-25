@@ -78,3 +78,13 @@ all_indices =[
           "furnas_rank",
           "treeness",
           "stemminess"]
+
+statistics_indices = [
+        "blum_statistics",
+        "j_one",
+        "average_ladder",
+        "maximum_ladder",
+        "mean_pairwise_distance",
+        "pairwise_distance_variance",
+        "mean_leaf_distance",
+        ]

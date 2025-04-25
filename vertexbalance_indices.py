@@ -276,3 +276,48 @@ class SymmetryNodesIndex(TreeIndex):
 
     def imbalance(self):
         return 1
+
+class BlumStatistic(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.blum_statistic
+        except AttributeError:
+            s = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    s += util.blum_value(tree, node)
+            tree.add_feature("blum_statistic", s)
+            return tree.blum_statistic
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 1
+
+class JOne(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.j_one
+        except AttributeError:
+            s = 0
+            cs_sum = 0
+            for node in tree.traverse("postorder"):
+                if not node.is_leaf():
+                    s += util.j_one_value(tree, node)
+                    cs_sum += util.clade_size(tree, node)
+            tree.add_feature("j_one", (-1 / cs_sum) * s)
+            return tree.j_one
+
+    def maximum(self, n, m, mode):
+        return 1
+
+    def minimum(self, n, m, mode):
+        return float("nan") #0 is not a tight bound
+
+    def imbalance(self):
+        return -1
+
