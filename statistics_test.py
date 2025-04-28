@@ -11,16 +11,37 @@ import indexlists
 
 
 class TestMetrics(unittest.TestCase):
-    tree_dir = "test_data/"
+    ref_dir = "data/reference_results_treestats"
+    tree_dir = "data/virus/trees/rooted"
+    expected = {}
+    for tree_name in os.listdir(tree_dir):
+        try:
+            df = pd.read_csv(os.path.join(ref_dir, tree_name + ".csv"))
+        except FileNotFoundError:
+            continue
+        results = {}
+        for i, row in df.iterrows():
+            results[row["names"]] = float(row["results"])
+        expected[tree_name] = results
 
     def test(self):
         test_trees = {}
         for test_tree_name in os.listdir(self.tree_dir):
+            print(test_tree_name)
+            if not test_tree_name in self.expected:
+                continue
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             tb_b = TreeBalance(tree, "BINARY")
             tb_a = TreeBalance(tree, "ARBITRARY")
             for index_name in indexlists.statistics_indices:
-                tb_b.absolute(index_name)
+                print(index_name)
+                try:
+                    self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][index_name])
+                except ValueError as e:
+                    print(e)
+                    self.assertAlmostEqual(tb_a.absolute(index_name), self.expected[test_tree_name][index_name])
+
 
 if __name__ == '__main__':
     unittest.main()
+

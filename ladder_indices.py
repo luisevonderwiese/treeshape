@@ -11,14 +11,13 @@ class AverageLadder(TreeIndex):
             return tree.average_ladder
         except AttributeError:
             try:
-                tree.ladder_length
+                tree.ladders
             except:
                 util.precompute_ladder_lengths(tree)
-            ladders = []
-            for node in tree.traverse("postorder"):
-                if not node.is_leaf():
-                    ladders.append(node.ladder_length)
-            tree.add_feature("average_ladder", sum(ladders) / len(ladders))
+            if len(tree.ladders) == 0:
+                tree.add_feature("average_ladder", 0)
+            else:
+                tree.add_feature("average_ladder", sum(tree.ladders) / len(tree.ladders))
             return tree.average_ladder
 
     def maximum(self, n, m, mode):
@@ -39,14 +38,13 @@ class MaximumLadder(TreeIndex):
             return tree.maximum_ladder
         except AttributeError:
             try:
-                tree.ladder_length
+                tree.ladders
             except:
                 util.precompute_ladder_lengths(tree)
-            ladders = []
-            for node in tree.traverse("postorder"):
-                if not node.is_leaf():
-                    ladders.append(node.ladder_length)
-            tree.add_feature("maximum_ladder", max(ladders))
+            if len(tree.ladders) == 0:
+                tree.add_feature("maximum_ladder", 0)
+            else:
+                tree.add_feature("maximum_ladder", max(tree.ladders))
             return tree.maximum_ladder
 
     def maximum(self, n, m, mode):

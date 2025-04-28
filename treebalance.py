@@ -117,8 +117,8 @@ class TreeBalance:
                 return distance_indices.MeanPairwiseDistance()
             case "pairwise_distance_variance":
                 return distance_indices.PairwiseDistanceVariance()
-            case "mean_leaf_distance":
-                return distance_indices.MeanLeafDistance()
+            case "mean_minimum_pairwise_distance":
+                return distance_indices.MeanMinimumPairwiseDistance()
             case "j_statistic":
                 return distance_indices.JStatistic()
             case "root_imbalance":

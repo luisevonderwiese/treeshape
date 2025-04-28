@@ -70,15 +70,11 @@ class MeanPairwiseDistance(TreeIndex):
         try:
             return tree.mean_pairwise_distance
         except AttributeError:
-            leaves = tree.get_leaves()
             try:
-                leaves[0].pw_distances_edges
+                tree.all_pw_distances
             except AttributeError:
-                util.precompute_pw_distances_edges(tree)
-            distances = []
-            for leaf in leaves:
-                distances += leaf.pw_distances_edges.values()
-            tree.add_feature("mean_pairwise_distance", sum(distances) / len(distances))
+                util.precompute_pw_distances_efficient(tree)
+            tree.add_feature("mean_pairwise_distance", sum(tree.all_pw_distances) / len(tree.all_pw_distances))
             return tree.mean_pairwise_distance
 
     def maximum(self, n, m, mode):
@@ -95,15 +91,11 @@ class PairwiseDistanceVariance(TreeIndex):
         try:
             return tree.pairwise_distance_variance
         except AttributeError:
-            leaves = tree.get_leaves()
             try:
-                leaves[0].pw_distances_edges
+               tree.all_pw_distances 
             except AttributeError:
-                util.precompute_pw_distances_edges(tree)
-            distances = []
-            for leaf in leaves:
-                distances += leaf.pw_distances_edges.values()
-            tree.add_feature("pairwise_distance_variance", np.var(distances))
+                util.precompute_pw_distances_efficient(tree)
+            tree.add_feature("pairwise_distance_variance", np.var(tree.all_pw_distances))
             return tree.pairwise_distance_variance
 
     def maximum(self, n, m, mode):
@@ -115,21 +107,20 @@ class PairwiseDistanceVariance(TreeIndex):
     def imbalance(self):
         return 1
 
-class MeanLeafDistance(TreeIndex):
+class MeanMinimumPairwiseDistance(TreeIndex):
     def evaluate(self, tree, mode):
         try:
-            return tree.mean_leaf_distance
+            return tree.mean_minimum_pairwise_distance
         except AttributeError:
             try:
-                tree.leaf_distance
+                tree.all_pw_distances
             except AttributeError:
-                util.precompute_leaf_distances(tree)
-            distances = []
-            for node in tree.traverse("postorder"):
-                if not node.is_leaf():
-                    distances.append(node.leaf_distance)
-            tree.add_feature("mean_leaf_distance", sum(distances) / len(distances))
-            return tree.mean_leaf_distance
+                util.precompute_pw_distances_efficient(tree)
+            minimum_distances = []
+            for leaf in tree.get_leaves():
+                minimum_distances.append(min(leaf.pw_distances.values()))
+            tree.add_feature("mean_minimum_pairwise_distance", sum(minimum_distances) / len(minimum_distances))
+            return tree.mean_minimum_pairwise_distance
 
     def maximum(self, n, m, mode):
         return float('nan')
@@ -145,15 +136,14 @@ class JStatistic(TreeIndex):
         try:
             return tree.j_statistic
         except AttributeError:
-            leaves = tree.get_leaves()
             try:
-                leaves[0].pw_distances_edges
+                tree.all_pw_distances
             except AttributeError:
-                util.precompute_pw_distances_edges(tree)
-            distances = []
-            for leaf in leaves:
-                distances += leaf.pw_distances_edges.values()
-            tree.add_feature("j_statistic", sum(distances) / (len(leaves) * len(leaves)))
+                util.precompute_pw_distances_efficient(tree)
+            s = len(tree.get_leaves())
+            print(s)
+            d = ((s+1) * (s-1) * s) / 4 
+            tree.add_feature("j_statistic", sum(tree.all_pw_distances) / d)
             return tree.j_statistic
 
     def maximum(self, n, m, mode):
