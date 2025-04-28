@@ -1,3 +1,5 @@
+import numpy as np
+
 import util
 
 from tree_index import TreeIndex
@@ -65,3 +67,176 @@ class Stemminess(TreeIndex):
 
     def imbalance(self):
         return 0
+
+
+class PhylogeneticDiversity(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.phylogenetic_diversity
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("phylogenetic_diversity", 0)
+            else:
+                all_brlens = 0
+                for node in tree.traverse("postorder"):
+                    all_brlens += node.dist
+                tree.add_feature("phylogenetic_diversity", all_brlens)
+            return tree.phylogenetic_diversity
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class MeanBranchLength(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_branch_length
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("mean_branch_length", 0)
+            else:      
+                all_brlens = []
+                for node in tree.traverse("postorder"):
+                    all_brlens.append(node.dist)
+                tree.add_feature("mean_branch_length", sum(all_brlens) / len(all_brlens))
+            return tree.mean_branch_length
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class BranchLengthVariance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.branch_length_variance
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("branch_length_variance", 0)
+            else:
+                all_brlens = []
+                for node in tree.traverse("postorder"):
+                    all_brlens.append(node.dist)
+                tree.add_feature("branch_length_variance", np.var(all_brlens))
+            return tree.branch_length_variance
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class MeanInternalBranchLength(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_internal_branch_length
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("mean_internal_branch_length", 0)
+            else:
+                internal_brlens = []
+                for node in tree.traverse("postorder"):
+                    if not node.is_leaf():
+                        internal_brlens.append(node.dist)
+                tree.add_feature("mean_internal_branch_length", sum(internal_brlens) / len(internal_brlens))
+            return tree.mean_internal_branch_length
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class InternalBranchLengthVariance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.internal_branch_length_variance
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("internal_branch_length_variance", 0)
+            else:
+                internal_brlens = []
+                for node in tree.traverse("postorder"):
+                    if not node.is_leaf():
+                        internal_brlens.append(node.dist)
+                tree.add_feature("internal_branch_length_variance", np.var(internal_brlens))
+            return tree.internal_branch_length_variance
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class MeanExternalBranchLength(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_external_branch_length
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("mean_external_branch_length", 0)
+            else:
+                external_brlens = []
+                for node in tree.traverse("postorder"):
+                    if node.is_leaf():
+                        external_brlens.append(node.dist)
+                tree.add_feature("mean_external_branch_length", sum(external_brlens) / len(external_brlens))
+            return tree.mean_external_branch_length
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+
+class ExternalBranchLengthVariance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.external_branch_length_variance
+        except AttributeError:
+            if tree.is_leaf():
+                tree.add_feature("external_branch_length_variance", 0)
+            else:
+                external_brlens = []
+                for node in tree.traverse("postorder"):
+                    if not node.is_leaf():
+                        external_brlens.append(node.dist)
+                tree.add_feature("external_branch_length_variance", np.var(external_brlens))
+            return tree.external_branch_length_variance
+
+    def maximum(self, n, m, mode):
+        return float("nan") 
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+

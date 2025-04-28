@@ -119,6 +119,8 @@ class TreeBalance:
                 return distance_indices.PairwiseDistanceVariance()
             case "mean_leaf_distance":
                 return distance_indices.MeanLeafDistance()
+            case "j_statistic":
+                return distance_indices.JStatistic()
             case "root_imbalance":
                 return root_indices.RootImbalance()
             case "I_root":
@@ -167,4 +169,19 @@ class TreeBalance:
                 return branchlength_indices.Treeness()
             case "stemminess":
                 return branchlength_indices.Stemminess()
+            case "phylogenetic_diversity":
+                return branchlength_indices.PhylogeneticDiversity()
+            case "mean_branch_length":
+                return branchlength_indices.MeanBranchLength()
+            case "branch_length_variance":
+                return branchlength_indices.BranchLengthVariance()
+            case "mean_internal_branch_length":
+                return branchlength_indices.MeanInternalBranchLength()
+            case "internal_branch_length_variance":
+                return branchlength_indices.InternalBranchLengthVariance()
+            case "mean_external_branch_length":
+                return branchlength_indices.MeanExternalBranchLength()
+            case "external_branch_length_variance":
+                return branchlength_indices.ExternalBranchLengthVariance()
+
         return None

@@ -87,4 +87,12 @@ statistics_indices = [
         "mean_pairwise_distance",
         "pairwise_distance_variance",
         "mean_leaf_distance",
+        "j_statistic",
+        "phylogenetic_diversity",
+        "mean_branch_length",
+        "branch_length_variance",
+        "mean_internal_branch_length",
+        "internal_branch_length_variance",
+        "mean_external_branch_length",
+        "external_branch_length_variance",
         ]

@@ -139,3 +139,29 @@ class MeanLeafDistance(TreeIndex):
 
     def imbalance(self):
         return 1
+
+class JStatistic(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.j_statistic
+        except AttributeError:
+            leaves = tree.get_leaves()
+            try:
+                leaves[0].pw_distances_edges
+            except AttributeError:
+                util.precompute_pw_distances_edges(tree)
+            distances = []
+            for leaf in leaves:
+                distances += leaf.pw_distances_edges.values()
+            tree.add_feature("j_statistic", sum(distances) / (len(leaves) * len(leaves)))
+            return tree.j_statistic
+
+    def maximum(self, n, m, mode):
+        return float('nan')
+
+    def minimum(self, n, m, mode):
+        return float('nan')
+
+    def imbalance(self):
+        return 1
+
