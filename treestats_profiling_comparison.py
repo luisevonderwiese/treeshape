@@ -7,7 +7,7 @@ import indexlists
 tree =  Tree("data/virus/trees/rooted/covid_edited.rooted.tree")
 tb = TreeBalance(tree, "BINARY")
 start = time.time()
-for index_name in indexlists.R_implemented_indices:
+for index_name in indexlists.treestats_indices:
     print(index_name)
     tb.absolute(index_name)
 end = time.time()

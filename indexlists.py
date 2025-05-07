@@ -1,4 +1,4 @@
-R_implemented_indices = [
+treebalance_indices = [
         "area_per_pair_index",
         "average_leaf_depth",
         "average_vertex_depth",
@@ -79,8 +79,38 @@ all_indices =[
           "treeness",
           "stemminess"]
 
-statistics_indices = [
-        #"blum_statistics",
+treestats_indices = [
+         "average_leaf_depth",
+          "variance_of_leaves_depths",
+          "sackin_index",
+          "total_path_length",
+          "total_internal_path_length",
+          "average_vertex_depth",
+          "B_1_index",
+          "B_2_index",
+          "maximum_depth",
+          "maximum_width",
+          "maxdiff_widths",
+          "max_width_over_max_depth",
+          "s_shape",
+          "cherry_index",
+          "total_cophenetic_index",
+          "diameter",
+          "area_per_pair_index",
+          "root_imbalance",
+          "colless_index",
+          "corrected_colless_index",
+          "quadratic_colless_index",
+          "I_2_index",
+          "stairs1",
+          "stairs2",
+          "rogers_j_index",
+          "symmetry_nodes_index",
+          "mean_I_prime",
+          "rooted_quartet_index",
+          "treeness",
+        
+#### from here on not properly intergrated ##########
         "j_one",
         "average_ladder",
         "maximum_ladder",

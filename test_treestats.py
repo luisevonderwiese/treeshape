@@ -33,7 +33,7 @@ class TestMetrics(unittest.TestCase):
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             tb_b = TreeBalance(tree, "BINARY")
             tb_a = TreeBalance(tree, "ARBITRARY")
-            for index_name in indexlists.statistics_indices:
+            for index_name in indexlists.treestats_indices:
                 print(index_name)
                 try:
                     self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][index_name])

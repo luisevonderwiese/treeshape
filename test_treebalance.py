@@ -7,9 +7,6 @@ import pandas as pd
 from treebalance import TreeBalance
 import indexlists
 
-
-
-
 class TestMetrics(unittest.TestCase):
     ref_dir = "data/reference_results"
     tree_dir = "data/virus/trees/rooted"
@@ -32,7 +29,7 @@ class TestMetrics(unittest.TestCase):
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             tb_b = TreeBalance(tree, "BINARY")
             tb_a = TreeBalance(tree, "ABRITRARY")
-            for index_name in indexlists.R_implemented_indices:
+            for index_name in indexlists.treebalance_indices:
                 print(index_name)
                 try:
                     self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][metric_name])
