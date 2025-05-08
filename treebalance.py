@@ -25,7 +25,7 @@ class TreeBalance:
             raise ValueError("BINARY mode only possible for strictly bifurcating trees")
         self.mode = mode
         self.tree = tree
-        self.n = util.clade_size(tree, tree)
+        self.n = len(tree)
         if mode == "BINARY":
             self.m = self.n - 1
         else:

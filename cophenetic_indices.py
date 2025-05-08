@@ -4,6 +4,7 @@ import math
 from tree_index import TreeIndex
 
 class TotalCopheneticIndex(TreeIndex):
+
     def evaluate(self, tree, mode):
         try:
             return tree.total_cophenetic_index

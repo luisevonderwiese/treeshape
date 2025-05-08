@@ -15,16 +15,22 @@ class Diameter(TreeIndex):
             if tree.is_leaf(): #single-node-tree
                 tree.add_feature("diameter", 0)
             else:
-                max_d = 0
-                deepest_leaf = None
-                for leaf in tree.iter_leaves():
-                    if util.depth(tree, leaf) > max_d:
-                        max_d = util.depth(tree, leaf)
-                        deepest_leaf = leaf
-                max_d = 0
-                for leaf in tree.iter_leaves():
-                    max_d = max(max_d, util.connecting_path_length(tree, deepest_leaf, leaf))
-                tree.add_feature("diameter", max_d)
+                try:
+                    tree.all_pw_distances
+                except AttributeError:
+                    util.precompute_pw_distances_efficient(tree)
+                tree.add_feature("diameter", max(tree.all_pw_distances))
+
+                #max_d = 0
+                #deepest_leaf = None
+                #for leaf in tree.iter_leaves():
+                #    if util.depth(tree, leaf) > max_d:
+                #        max_d = util.depth(tree, leaf)
+                #        deepest_leaf = leaf
+                #max_d = 0
+                #for leaf in tree.iter_leaves():
+                #    max_d = max(max_d, util.connecting_path_length(tree, deepest_leaf, leaf))
+                #tree.add_feature("diameter", max_d)
             return tree.diameter
 
     def maximum(self, n, m, mode):
