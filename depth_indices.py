@@ -30,7 +30,7 @@ class VarianceOfLeavesDepths(TreeIndex):
         try:
             return tree.variance_of_leaves_depths
         except AttributeError:
-            tree.add_feature("variance_of_leaves_depths", np.var(util.leaf_depths(tree)))
+            tree.add_feature("variance_of_leaves_depths", float(np.var(util.leaf_depths(tree))))
             return tree.variance_of_leaves_depths
 
     def maximum(self, n, m, mode):

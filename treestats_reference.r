@@ -113,7 +113,7 @@ for (tree_name in tree_names) {
 
 	start.time <- Sys.time()
 	results <- c(results, treestats::max_del_width(tree))
-	names <- c(names, "maxdiff_widths")
+	names <- c(names, "modified_maxdiff_widths")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
 
