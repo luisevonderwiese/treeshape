@@ -96,6 +96,32 @@ def precompute_pw_distances_efficient(tree):
                         l2.pw_distances[l1] = total_dist
                         tree.all_pw_distances.append(total_dist)
            
+def precompute_pw_topo_distances_efficient(tree):
+    for node in tree.traverse("postorder"):
+        node.add_feature("leaf_topo_dists", {})
+        if node.is_leaf():
+            node.leaf_topo_dists[node] = 0
+            continue
+        for c in node.children:
+            for l, d in c.leaf_topo_dists.items():
+                node.leaf_topo_dists[l] = d + 1
+    for leaf in tree.get_leaves():
+        leaf.add_feature("pw_topo_distances", {})
+    tree.add_feature("all_pw_topo_distances", [])
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            continue
+        children = node.children
+        for i, c1 in enumerate(children):
+            for j in range(i + 1, len(children)):
+                c2 = children[j]
+                for l1, d1 in c1.leaf_topo_dists.items():
+                    for l2, d2 in c2.leaf_topo_dists.items():
+                        total_dist = d1 + d2
+                        l1.pw_topo_distances[l2] = total_dist
+                        l2.pw_topo_distances[l1] = total_dist
+                        tree.all_pw_topo_distances.append(total_dist)
+
 def widths(tree):
     return Counter([depth(tree, v) for v in tree.traverse("postorder")])
 

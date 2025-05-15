@@ -44,6 +44,7 @@ tree =  Tree(treepath)
 util.precompute_clade_sizes(tree)
 util.precompute_depths(tree)
 util.precompute_pw_distances_efficient(tree)
+util.precompute_pw_topo_distances_efficient(tree)
 tb = TreeBalance(tree, "BINARY")
 
 

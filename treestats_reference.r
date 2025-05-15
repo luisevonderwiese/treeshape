@@ -153,11 +153,11 @@ for (tree_name in tree_names) {
         #end.time <- Sys.time()
         #times <- c(times, end.time - start.time)
 
-	start.time <- Sys.time()
-	results <- c(results, treestats::mntd(tree))
-	names <- c(names, "mean_minimum_pairwise_distance")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
+	#start.time <- Sys.time()
+	#results <- c(results, treestats::mntd(tree))
+	#names <- c(names, "mean_minimum_pairwise_distance")
+        #end.time <- Sys.time()
+        #times <- c(times, end.time - start.time)
 
 	#start.time <- Sys.time()
 	#results <- c(results, treestats::mean_pair_dist(tree))
