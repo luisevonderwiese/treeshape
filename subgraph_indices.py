@@ -4,6 +4,16 @@ import math
 from tree_index import TreeIndex
 
 class CherryIndex(TreeIndex):
+    def evaluate_only(self, tree, mode):
+        cnt = 0
+        for node in tree.traverse("postorder"):
+            if node.is_leaf():
+                continue
+            direct_leaves = len([child for child in node.children if child.is_leaf()])
+            if direct_leaves >= 2:
+                cnt += math.comb(direct_leaves, 2)
+        return  cnt
+
     def evaluate(self, tree, mode):
         try:
             return tree.cherry_index
@@ -40,7 +50,7 @@ class ModifiedCherryIndex(TreeIndex):
         try:
             return tree.modified_cherry_index
         except AttributeError:
-            tree.add_feature("modified_cherry_index", util.clade_size(tree, tree) - 2 * CherryIndex().evaluate(tree, mode))
+            tree.add_feature("modified_cherry_index", util.clade_size(tree, tree) - 2 * CherryIndex().evaluate_only(tree, mode))
             return tree.modified_cherry_index
 
     def maximum(self, n, m, mode):

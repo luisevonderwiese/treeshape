@@ -51,8 +51,8 @@ class AreaPerPairIndex(TreeIndex):
             if n == 1:
                 tree.add_feature("area_per_pair_index", 0)
             else:
-                s = SackinIndex().evaluate(tree, mode)
-                c = TotalCopheneticIndex().evaluate(tree, mode)
+                s = SackinIndex().evaluate_only(tree, mode)
+                c = TotalCopheneticIndex().evaluate_only(tree, mode)
                 tree.add_feature("area_per_pair_index", 2 / n * s - 4 / (n * (n - 1)) * c)
             return tree.area_per_pair_index
 

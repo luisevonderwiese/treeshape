@@ -4,6 +4,13 @@ import math
 from tree_index import TreeIndex
 
 class CollessIndex(TreeIndex):
+    def evaluate_only(self, tree, mode):
+        s = 0
+        for node in tree.traverse("postorder"):
+            if not node.is_leaf():
+                s += util.balance_index(tree, node)
+        return s
+
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
             raise ValueError("colless_index is not defined for arbitrary trees")
@@ -50,7 +57,7 @@ class CorrectedCollessIndex(TreeIndex):
                 tree.add_feature("corrected_colless_index", 0)
             else:
                 n = util.clade_size(tree, tree)
-                tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate(tree, mode)) / ((n-1) * (n-2)))
+                tree.add_feature("corrected_colless_index", (2 * CollessIndex().evaluate_only(tree, mode)) / ((n-1) * (n-2)))
             return tree.corrected_colless_index
 
     def maximum(self, n, m, mode):
@@ -155,7 +162,7 @@ class Stairs1(TreeIndex):
             if tree.is_leaf():
                 return tree.add_feature("stairs1", 0)
             else:
-                tree.add_feature("stairs1", RogersJIndex().evaluate(tree, mode) /  (util.clade_size(tree, tree)- 1))
+                tree.add_feature("stairs1", RogersJIndex().evaluate_only(tree, mode) /  (util.clade_size(tree, tree)- 1))
             return tree.stairs1
 
     def maximum(self, n, m, mode):
@@ -211,6 +218,16 @@ class Stairs2(TreeIndex):
 
 
 class RogersJIndex(TreeIndex):
+    def evaluate_only(self, tree, mode):
+        s = 0
+        for node in tree.traverse("postorder"):
+            if not node.is_leaf():
+                if util.balance_index(tree, node) != 0:
+                    s += 1
+        return s 
+
+
+
     def evaluate(self, tree, mode):
         if mode == "ARBITRARY":
             raise ValueError("rogers_j_index is not defined for arbitrary trees")

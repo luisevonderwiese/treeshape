@@ -4,7 +4,13 @@ import math
 from tree_index import TreeIndex
 
 class TotalCopheneticIndex(TreeIndex):
-
+    def evaluate_only(self, tree, mode):
+        s = 0
+        for node in tree.iter_descendants("postorder"):
+            if not node.is_leaf():
+                s += math.comb(util.clade_size(tree, node), 2)
+        return s
+    
     def evaluate(self, tree, mode):
         try:
             return tree.total_cophenetic_index

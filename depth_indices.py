@@ -47,6 +47,9 @@ class VarianceOfLeavesDepths(TreeIndex):
 
 
 class SackinIndex(TreeIndex):
+    def evaluate_only(self, tree, mode):
+        return sum(util.leaf_depths(tree))
+
     def evaluate(self, tree, mode):
         try:
             return tree.sackin_index
@@ -142,6 +145,9 @@ class AverageVertexDepth(TreeIndex):
 
 
 class MaximumDepth(TreeIndex):
+    def evaluate_only(self, tree, mode):
+        return max(util.leaf_depths(tree))
+
     def evaluate(self, tree, mode):
         try:
             return tree.maximum_depth
