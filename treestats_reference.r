@@ -28,12 +28,6 @@ for (tree_name in tree_names) {
         times <- c(times, end.time - start.time)
 
 	start.time <- Sys.time()
-	results <- c(results, treestats::avg_ladder(tree))
-	names <- c(names, "average_ladder")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
-
-	start.time <- Sys.time()
 	results <- c(results, treestats::avg_vert_depth(tree))
 	names <- c(names, "average_vertex_depth")
         end.time <- Sys.time()
@@ -100,18 +94,6 @@ for (tree_name in tree_names) {
         times <- c(times, end.time - start.time)
 
 	start.time <- Sys.time()
-	results <- c(results, treestats::j_one(tree))
-	names <- c(names, "j_one")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::j_stat(tree))
-	#names <- c(names, "blum_statistic")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
-	start.time <- Sys.time()
 	results <- c(results, treestats::max_del_width(tree))
 	names <- c(names, "modified_maxdiff_widths")
         end.time <- Sys.time()
@@ -124,58 +106,16 @@ for (tree_name in tree_names) {
         times <- c(times, end.time - start.time)
 	
 	start.time <- Sys.time()
-	results <- c(results, treestats::max_ladder(tree))
-	names <- c(names, "maximum_ladder")
-        end.time <- Sys.time()
-        times <- c(times, end.time - start.time)
-
-	start.time <- Sys.time()
 	results <- c(results, treestats::max_width(tree))
 	names <- c(names, "maximum_width")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::mean_branch_length(tree))
-	#names <- c(names, "mean_branch_length")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-	
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::mean_branch_length_ext(tree))
-	#names <- c(names, "mean_external_branch_length")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-	
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::mean_branch_length_int(tree))
-	#names <- c(names, "mean_internal_branch_length")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::mntd(tree))
-	#names <- c(names, "mean_minimum_pairwise_distance")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::mean_pair_dist(tree))
-	#names <- c(names, "mean_pairwise_distance")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
 
 	start.time <- Sys.time()
 	results <- c(results, treestats::mw_over_md(tree))
 	names <- c(names, "max_width_over_max_depth")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::phylogenetic_diversity(tree))
-	#names <- c(names, "phylogenetic_diversity")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
 
 	start.time <- Sys.time()
 	results <- c(results, treestats::rogers(tree))
@@ -243,36 +183,11 @@ for (tree_name in tree_names) {
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
 
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::var_branch_length(tree))
-	#names <- c(names, "branch_length_variance")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::var_branch_length_ext(tree))
-	#names <- c(names, "external_branch_length_variance")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::var_branch_length_int(tree))
-	#names <- c(names, "internal_branch_length_variance")
-        #end.time <- Sys.time()
-        #times <- c(times, end.time - start.time)
-
 	start.time <- Sys.time()
 	results <- c(results, treestats::var_leaf_depth(tree))
 	names <- c(names, "variance_of_leaves_depths")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
-
-	#start.time <- Sys.time()
-	#results <- c(results, treestats::vpd(tree))
-	#names <- c(names, "pairwise_distance_variance")
-	#end.time <- Sys.time()
-	#times <- c(times, end.time - start.time)
-
 
 	data <- data.frame(names,results)
 	write.csv(data,	paste("data/treestats_results/", tree_name, ".csv", sep=""))

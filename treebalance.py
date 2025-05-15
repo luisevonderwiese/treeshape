@@ -10,7 +10,6 @@ import cophenetic_indices
 import distance_indices
 import root_indices
 import vertexbalance_indices
-import ladder_indices
 import Ibased_indices
 import ranking_indices
 import branchlength_indices
@@ -113,14 +112,6 @@ class TreeBalance:
                 return distance_indices.Diameter()
             case "area_per_pair_index":
                 return distance_indices.AreaPerPairIndex()
-            case "mean_pairwise_distance":
-                return distance_indices.MeanPairwiseDistance()
-            case "pairwise_distance_variance":
-                return distance_indices.PairwiseDistanceVariance()
-            case "mean_minimum_pairwise_distance":
-                return distance_indices.MeanMinimumPairwiseDistance()
-            case "j_statistic":
-                return distance_indices.JStatistic()
             case "root_imbalance":
                 return root_indices.RootImbalance()
             case "I_root":
@@ -141,14 +132,6 @@ class TreeBalance:
                 return vertexbalance_indices.RogersJIndex()
             case "symmetry_nodes_index":
                 return vertexbalance_indices.SymmetryNodesIndex()
-            case "blum_statistics":
-                return vertexbalance_indices.BlumStatistic()
-            case "j_one":
-                return vertexbalance_indices.JOne()
-            case "average_ladder":
-                return ladder_indices.AverageLadder()
-            case "maximum_ladder":
-                return ladder_indices.MaximumLadder()
             case "mean_I":
                 return Ibased_indices.MeanI()
             case "total_I":
@@ -169,19 +152,5 @@ class TreeBalance:
                 return branchlength_indices.Treeness()
             case "stemminess":
                 return branchlength_indices.Stemminess()
-            case "phylogenetic_diversity":
-                return branchlength_indices.PhylogeneticDiversity()
-            case "mean_branch_length":
-                return branchlength_indices.MeanBranchLength()
-            case "branch_length_variance":
-                return branchlength_indices.BranchLengthVariance()
-            case "mean_internal_branch_length":
-                return branchlength_indices.MeanInternalBranchLength()
-            case "internal_branch_length_variance":
-                return branchlength_indices.InternalBranchLengthVariance()
-            case "mean_external_branch_length":
-                return branchlength_indices.MeanExternalBranchLength()
-            case "external_branch_length_variance":
-                return branchlength_indices.ExternalBranchLengthVariance()
 
         return None

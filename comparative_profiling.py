@@ -41,14 +41,14 @@ with open("data/comp_treestats_profiling/" + treename + ".csv", "w+") as outfile
 
 
 tree =  Tree(treepath)
+start = time.time()
 util.precompute_clade_sizes(tree)
 util.precompute_depths(tree)
-util.precompute_pw_distances_efficient(tree)
-util.precompute_pw_topo_distances_efficient(tree)
+end = time.time()
+precomputation_time = end - start
 tb = TreeBalance(tree, "BINARY")
 
-
-times = []
+times = [precomputation_time]
 for index_name in indexlists.treebalance_indices:
     print(index_name)
     start = time.time()
@@ -58,10 +58,10 @@ for index_name in indexlists.treebalance_indices:
 if not os.path.isdir("data/comp_treebalance_profiling_precompute/"):
     os.makedirs("data/comp_treebalance_profiling_precompute/")
 with open("data/comp_treebalance_profiling_precompute/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(indexlists.treebalance_indices) + "\n")
+    outfile.write(",".join(["precomputation"] + indexlists.treebalance_indices) + "\n")
     outfile.write(",".join([str(time) for time in times]) + "\n")
 
-times = []
+times = [precomputation_time]
 for index_name in indexlists.treestats_indices:
     print(index_name)
     start = time.time()
@@ -71,6 +71,6 @@ for index_name in indexlists.treestats_indices:
 if not os.path.isdir("data/comp_treestats_profiling_precompute/"):
     os.makedirs("data/comp_treestats_profiling_precompute/")
 with open("data/comp_treestats_profiling_precompute/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(indexlists.treestats_indices) + "\n")
+    outfile.write(",".join(["precomputation"] + indexlists.treestats_indices) + "\n")
     outfile.write(",".join([str(time) for time in times]) + "\n")
 

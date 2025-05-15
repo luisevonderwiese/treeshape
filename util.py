@@ -41,87 +41,6 @@ def depths_recursive(tree):
             depths_recursive(child)
 
 
-def precompute_ladder_lengths(tree):
-    for node in tree.traverse("postorder"):
-        if node.is_leaf():
-            node.add_feature("ladder_length", -1)
-            continue
-        c = node.children
-        assert len(c)==2 #only defined for bifurcating trees
-        if c[0].is_leaf():
-            node.add_feature("ladder_length", c[1].ladder_length + 1)
-        elif c[1].is_leaf():
-            node.add_feature("ladder_length", c[0].ladder_length + 1)
-        else: #not part of a ladder
-            node.add_feature("ladder_length", 0)
-    tree.add_feature("ladders", [])
-    for node in tree.traverse("preorder"):
-        if node.ladder_length  == -1:
-            continue
-        if node.ladder_length == 0:
-            for c in node.children:
-                if c.ladder_length > 1:
-                    tree.ladders.append(c.ladder_length)
-            continue
-        for c in node.children:
-            if c.ladder_length > 0:
-                c.ladder_length = node.ladder_length
-    if tree.ladder_length > 0:
-        tree.ladders.append(tree.ladder_length)
-
-
-def precompute_pw_distances_efficient(tree):
-    for node in tree.traverse("postorder"):
-        node.add_feature("leaf_dists", {})
-        if node.is_leaf():
-            node.leaf_dists[node] = 0
-            continue
-        for c in node.children:
-            for l, d in c.leaf_dists.items():
-                node.leaf_dists[l] = d + c.dist
-    for leaf in tree.get_leaves():
-        leaf.add_feature("pw_distances", {}) 
-    tree.add_feature("all_pw_distances", [])
-    for node in tree.traverse("postorder"):
-        if node.is_leaf():
-            continue
-        children = node.children
-        for i, c1 in enumerate(children):
-            for j in range(i + 1, len(children)):
-                c2 = children[j]
-                for l1, d1 in c1.leaf_dists.items():
-                    for l2, d2 in c2.leaf_dists.items():
-                        total_dist = d1 + d2
-                        l1.pw_distances[l2] = total_dist
-                        l2.pw_distances[l1] = total_dist
-                        tree.all_pw_distances.append(total_dist)
-           
-def precompute_pw_topo_distances_efficient(tree):
-    for node in tree.traverse("postorder"):
-        node.add_feature("leaf_topo_dists", {})
-        if node.is_leaf():
-            node.leaf_topo_dists[node] = 0
-            continue
-        for c in node.children:
-            for l, d in c.leaf_topo_dists.items():
-                node.leaf_topo_dists[l] = d + 1
-    for leaf in tree.get_leaves():
-        leaf.add_feature("pw_topo_distances", {})
-    tree.add_feature("all_pw_topo_distances", [])
-    for node in tree.traverse("postorder"):
-        if node.is_leaf():
-            continue
-        children = node.children
-        for i, c1 in enumerate(children):
-            for j in range(i + 1, len(children)):
-                c2 = children[j]
-                for l1, d1 in c1.leaf_topo_dists.items():
-                    for l2, d2 in c2.leaf_topo_dists.items():
-                        total_dist = d1 + d2
-                        l1.pw_topo_distances[l2] = total_dist
-                        l2.pw_topo_distances[l1] = total_dist
-                        tree.all_pw_topo_distances.append(total_dist)
-
 def widths(tree):
     return Counter([depth(tree, v) for v in tree.traverse("postorder")])
 
@@ -143,21 +62,6 @@ def balance_index(tree, v):
     c = v.children
     assert (len(c) == 2)
     return abs(clade_size(tree, c[0]) - clade_size(tree, c[1]))
-
-def blum_value(tree, v):
-    assert not v.is_leaf()
-    return math.log(clade_size(v, tree) - 1)
-
-def j_one_value(tree, v):
-    assert not v.is_leaf()
-    v_children = v.children
-    num_children = len(v_children)
-    s = 0
-    n_v = clade_size(tree, v)
-    for c in v_children:
-        n_c = clade_size(tree, c)
-        s += n_c * math.log(n_c / n_v, num_children)
-    return s
 
 def precompute_probs(tree):
     tree.add_feature("prob", 1)

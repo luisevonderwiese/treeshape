@@ -109,20 +109,4 @@ treestats_indices = [
           "mean_I_prime",
           "rooted_quartet_index",
           "treeness",
-        
-#### from here on not properly intergrated ##########
-        "j_one",
-        "average_ladder",
-        "maximum_ladder",
-        #"mean_pairwise_distance",
-        #"pairwise_distance_variance",
-        #"mean_minimum_pairwise_distance",
-        #"j_statistic",
-        #"phylogenetic_diversity",
-        #"mean_branch_length",
-        #"branch_length_variance",
-        #"mean_internal_branch_length",
-        #"internal_branch_length_variance",
-        #"mean_external_branch_length",
-        #"external_branch_length_variance",
-        ]
+          ] 

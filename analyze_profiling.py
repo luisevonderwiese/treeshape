@@ -7,6 +7,8 @@ with open("data/comp_treestats_profiling/" + tree_name + ".csv", "r") as infile:
     lines = infile.readlines()
 names = lines[0][:-1].split(",")
 times = [float(s) for s in lines[1].split(",")]
+d["precomputation"] = [0]
+
 for i, name in enumerate(names):
     d[name] = [times[i]]
 
@@ -19,6 +21,7 @@ for i, name in enumerate(names):
 
 with open("data/treestats_profiling/" + tree_name + ".csv", "r") as infile:
     lines = infile.readlines()
+d["precomputation"].append(0)
 for line in lines[1:]:
     parts = line.split(",")
     name = parts[1].strip("\"")

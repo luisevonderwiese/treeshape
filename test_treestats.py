@@ -36,9 +36,9 @@ class TestMetrics(unittest.TestCase):
             for index_name in indexlists.treestats_indices:
                 if index_name == "s_shape":
                     continue #fails due to different base of logarithm
-                print(index_name)
                 if index_name == "variance_of_leaves_depths":
                     continue #population variance vs sample variance https://numpy.org/devdocs/reference/generated/numpy.var.html
+                print(index_name)
                 try:
                     self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][index_name])
                 except ValueError as e:
