@@ -8,7 +8,7 @@ from treebalance import TreeBalance
 import indexlists
 
 class TestMetrics(unittest.TestCase):
-    ref_dir = "data/treebalance_results"
+    ref_dir = "results/treebalance/metrics/virus"
     tree_dir = "data/virus/trees/rooted"
     expected = {}
     for tree_name in os.listdir(tree_dir):
@@ -28,14 +28,14 @@ class TestMetrics(unittest.TestCase):
                 continue
             tree = Tree(os.path.join(self.tree_dir, test_tree_name))
             tb_b = TreeBalance(tree, "BINARY")
-            tb_a = TreeBalance(tree, "ABRITRARY")
+            tb_a = TreeBalance(tree, "ARBITRARY")
             for index_name in indexlists.treebalance_indices:
                 print(index_name)
                 try:
-                    self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][metric_name])
+                    self.assertAlmostEqual(tb_b.absolute(index_name), self.expected[test_tree_name][index_name])
                 except ValueError as e:
                     print(e)
-                    self.assertAlmostEqual(tb_a.absolute(index_name), self.expected[test_tree_name][metric_name])
+                    self.assertAlmostEqual(tb_a.absolute(index_name), self.expected[test_tree_name][index_name])
 
 
 if __name__ == '__main__':

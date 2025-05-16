@@ -6,71 +6,50 @@ from treebalance import TreeBalance
 import indexlists
 import util
 
-treename = "covid_edited.rooted.tree"
-treepath = os.path.join("data/virus/trees/rooted/", treename)
 
-times = []
-for index_name in indexlists.treebalance_indices:
-    print(index_name)
+def profile(tree_dir, treename, results_dir):
+    treepath = os.path.join("data/virus/trees/rooted/", treename)
+    times = []
+    for index_name in indexlists.treestats_indices:
+        print(index_name)
+        tree =  Tree(treepath)
+        tb = TreeBalance(tree, "BINARY")
+        start = time.time()
+        tb.absolute(index_name)
+        end = time.time()
+        times.append(end - start)
+    if not os.path.isdir(os.path.join(results_dir, "no_precompute")):
+        os.makedirs(os.path.join(results_dir, "no_precompute"))
+    with open(os.path.join(results_dir, "no_precompute", treename + ".csv"), "w+") as outfile:
+        outfile.write(",".join(indexlists.treestats_indices) + "\n")
+        outfile.write(",".join([str(time) for time in times]) + "\n")
+
+
     tree =  Tree(treepath)
+    start = time.time()
+    util.precompute_clade_sizes(tree)
+    util.precompute_depths(tree)
+    end = time.time()
+    precomputation_time = end - start
     tb = TreeBalance(tree, "BINARY")
-    start = time.time()
-    tb.absolute(index_name)
-    end = time.time()
-    times.append(end - start)
-if not os.path.isdir("data/comp_treebalance_profiling/"):
-    os.makedirs("data/comp_treebalance_profiling/")
-with open("data/comp_treebalance_profiling/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(indexlists.treebalance_indices) + "\n")
-    outfile.write(",".join([str(time) for time in times]) + "\n")
 
-times = []
-for index_name in indexlists.treestats_indices:
-    print(index_name)
-    tree =  Tree(treepath)
-    tb = TreeBalance(tree, "BINARY")
-    start = time.time()
-    tb.absolute(index_name)
-    end = time.time()
-    times.append(end - start)
-if not os.path.isdir("data/comp_treestats_profiling/"):
-    os.makedirs("data/comp_treestats_profiling/")
-with open("data/comp_treestats_profiling/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(indexlists.treestats_indices) + "\n")
-    outfile.write(",".join([str(time) for time in times]) + "\n")
+    times = [precomputation_time]
+    for index_name in indexlists.treestats_indices:
+        print(index_name)
+        start = time.time()
+        tb.absolute(index_name)
+        end = time.time()
+        times.append(end - start)
+    if not os.path.isdir(os.path.join(results_dir, "precompute")):
+        os.makedirs(os.path.join(results_dir, "precompute"))
+    with open(os.path.join(results_dir, "precompute", treename + ".csv"), "w+") as outfile:
+        outfile.write(",".join(["precomputation"] + indexlists.treestats_indices) + "\n")
+        outfile.write(",".join([str(time) for time in times]) + "\n")
 
 
-tree =  Tree(treepath)
-start = time.time()
-util.precompute_clade_sizes(tree)
-util.precompute_depths(tree)
-end = time.time()
-precomputation_time = end - start
-tb = TreeBalance(tree, "BINARY")
+tree_dir = "data/virus/trees/rooted/"
+results_dir = "results/python/benchmark/virus"
 
-times = [precomputation_time]
-for index_name in indexlists.treebalance_indices:
-    print(index_name)
-    start = time.time()
-    tb.absolute(index_name)
-    end = time.time()
-    times.append(end - start)
-if not os.path.isdir("data/comp_treebalance_profiling_precompute/"):
-    os.makedirs("data/comp_treebalance_profiling_precompute/")
-with open("data/comp_treebalance_profiling_precompute/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(["precomputation"] + indexlists.treebalance_indices) + "\n")
-    outfile.write(",".join([str(time) for time in times]) + "\n")
-
-times = [precomputation_time]
-for index_name in indexlists.treestats_indices:
-    print(index_name)
-    start = time.time()
-    tb.absolute(index_name)
-    end = time.time()
-    times.append(end - start)
-if not os.path.isdir("data/comp_treestats_profiling_precompute/"):
-    os.makedirs("data/comp_treestats_profiling_precompute/")
-with open("data/comp_treestats_profiling_precompute/" + treename + ".csv", "w+") as outfile:
-    outfile.write(",".join(["precomputation"] + indexlists.treestats_indices) + "\n")
-    outfile.write(",".join([str(time) for time in times]) + "\n")
+for treename in os.listdir(tree_dir):
+    profile(tree_dir, treename, results_dir)
 

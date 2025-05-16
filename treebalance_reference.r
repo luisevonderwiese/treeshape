@@ -231,9 +231,29 @@ for (tree_name in tree_names) {
         times <- c(times, end.time - start.time)
 	names <- c(names, "d_index")
 	
+        if (!file.exists("results/")){
+                dir.create(file.path("results/"))
+        }
+        if (!file.exists("results/treebalance/")){
+                dir.create(file.path("results/treebalance/"))
+        }
+        if (!file.exists("results/treebalance/metrics/")){
+                dir.create(file.path("results/treebalance/metrics/"))
+        }
+        if (!file.exists("results/treebalance/benchmark/")){
+                dir.create(file.path("results/treebalance/benchmark/"))
+        }
+        if (!file.exists("results/treebalance/metrics/virus/")){
+                dir.create(file.path("results/treebalance/metrics/virus/"))
+        }
+        if (!file.exists("results/treebalance/benchmark/virus/")){
+                dir.create(file.path("results/treebalance/benchmark/virus/"))
+        }
 
-	data <- data.frame(names,results)
-	write.csv(data,	paste("data/treebalance_results/", tree_name, ".csv", sep=""))
-	data <- data.frame(names,times)
-        write.csv(data, paste("data/treebalance_profiling/", tree_name, ".csv", sep=""))
+        data <- data.frame(names,results)
+        write.csv(data, paste("results/treebalance/metrics/virus/", tree_name, ".csv", sep=""))
+        data <- data.frame(names,times)
+        write.csv(data, paste("results/treebalance/benchmark/virus/", tree_name, ".csv", sep=""))
+
+
 }

@@ -189,9 +189,29 @@ for (tree_name in tree_names) {
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
 
+	
+	if (!file.exists("results/")){
+        	dir.create(file.path("results/"))
+	}
+	if (!file.exists("results/treestats/")){
+                dir.create(file.path("results/treestats/"))
+        }
+	if (!file.exists("results/treestats/metrics/")){
+                dir.create(file.path("results/treestats/metrics/"))
+        }
+	if (!file.exists("results/treestats/benchmark/")){
+                dir.create(file.path("results/treestats/benchmark/"))
+        }
+        if (!file.exists("results/treestats/metrics/virus/")){
+                dir.create(file.path("results/treestats/metrics/virus/"))
+        }
+        if (!file.exists("results/treestats/benchmark/virus/")){
+                dir.create(file.path("results/treestats/benchmark/virus/"))
+        }
+
 	data <- data.frame(names,results)
-	write.csv(data,	paste("data/treestats_results/", tree_name, ".csv", sep=""))
+	write.csv(data,	paste("results/treestats/metrics/virus/", tree_name, ".csv", sep=""))
 	data <- data.frame(names,times)
-        write.csv(data, paste("data/treestats_profiling/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("results/treestats/benchmark/virus/", tree_name, ".csv", sep=""))
 
 }
