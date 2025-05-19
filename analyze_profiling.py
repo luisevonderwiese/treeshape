@@ -25,12 +25,14 @@ def analyze(tree_name, python_dir, R_dir):
 
     with open(os.path.join(R_dir, tree_name + ".csv"), "r") as infile:
         lines = infile.readlines()
-    d["precomputation"]["R"] = 0
+    d["precomputation"]["treestats"] = 0
     for line in lines[1:]:
         parts = line.split(",")
         name = parts[1].strip("\"")
         time = float(parts[2])
-        d[name]["R"] = time
+        d[name]["treestats"] = time
+    res = [[name] + [d[name][setup] for setup in ["no_precompute", "precompute", "treestats"]] for name in names]
+    print(tabulate(res, headers = ["metric", "no_precompute", "precompute", "treestats"], tablefmt="pipe", floatfmt=".6f"))
     return d
 
 def boxplots(all_times, plots_dir):

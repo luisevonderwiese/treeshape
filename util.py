@@ -40,6 +40,16 @@ def depths_recursive(tree):
         if not child.is_leaf():
             depths_recursive(child)
 
+def diameter_recursive(tree, v):
+    if v.is_leaf():
+        v.diameter = 0
+        return 1
+    c = v.children
+    heights = []
+    for child in c:
+        heights.append(diameter_recursive(tree, child))
+    v.add_feature("diameter", max([c[0].diameter, c[1].diameter, heights[0] + heights[1]]))
+    return 1 + max(heights)
 
 def widths(tree):
     return Counter([depth(tree, v) for v in tree.traverse("postorder")])

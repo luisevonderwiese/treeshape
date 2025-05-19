@@ -274,17 +274,21 @@ class TestMetrics(unittest.TestCase):
     def test_absolute(self):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
+            print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeBalance(tree, "BINARY")
             for index_name in indexlists.all_indices:
+                print(index_name)
                 self.assertAlmostEqual(tb.absolute(index_name), self.expected[test_tree_name][index_name])
 
     def test_relative_binary(self):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
+            print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeBalance(tree, "BINARY")
             for index_name in indexlists.all_indices:
+                print(index_name)
                 try:
                     tb.relative(index_name)
                 except ValueError as e:
@@ -294,9 +298,11 @@ class TestMetrics(unittest.TestCase):
     def test_relative_arbitrary(self):
         test_trees = {}
         for test_tree_name in self.test_tree_names:
+            print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeBalance(tree, "ARBITRARY")
             for index_name in indexlists.all_indices:
+                print(index_name)
                 try:
                     tb.relative(index_name)
                 except ValueError as e:
