@@ -70,6 +70,68 @@ class ModifiedCherryIndex(TreeIndex):
     def imbalance(self):
         return 0
 
+class Pitchforks(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.pitchforks
+        except AttributeError:
+            cnt = 0
+            for node in tree.traverse():
+                if util.is_pitchfork(tree, node):
+                    cnt += 1
+            tree.add_feature("pitchforks", cnt)
+            return tree.pitchforks
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class FourCaterpillars(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.four_caterpillars
+        except AttributeError:
+            cnt = 0
+            for node in tree.traverse():
+                if util.is_4caterpillar(tree, node):
+                    cnt += 1
+            tree.add_feature("four_caterpillars", cnt)
+            return tree.four_caterpillars
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class DoubleCherries(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.double_cherries
+        except AttributeError:
+            cnt = 0
+            for node in tree.traverse():
+                if util.is_double_cherry(tree, node):
+                    cnt += 1
+            tree.add_feature("double_cherries", cnt)
+            return tree.double_cherries
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
 
 class RootedQuartetIndex(TreeIndex):
     def evaluate(self, tree, mode):

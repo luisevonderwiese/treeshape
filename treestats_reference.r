@@ -192,7 +192,25 @@ for (tree_name in tree_names) {
         names <- c(names, "IL_number")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
-	
+
+	start.time <- Sys.time()
+        results <- c(results, treestats::pitchforks(tree))
+        names <- c(names, "pitchforks")
+        end.time <- Sys.time()
+        times <- c(times, end.time - start.time)
+
+	start.time <- Sys.time()
+        results <- c(results, treestats::four_caterpillars(tree))
+        names <- c(names, "four_prong")
+        end.time <- Sys.time()
+        times <- c(times, end.time - start.time)
+
+	start.time <- Sys.time()
+        results <- c(results, treestats::double_cherries(tree))
+        names <- c(names, "double_cherries")
+        end.time <- Sys.time()
+        times <- c(times, end.time - start.time)
+
 	if (!file.exists("results/")){
         	dir.create(file.path("results/"))
 	}

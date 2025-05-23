@@ -53,6 +53,9 @@ all_indices =[
           "s_shape",
           "cherry_index",
           "modified_cherry_index",
+          "pitchforks",
+          "four_caterpillars",
+          "double_cherries",
           "d_index",
           "ladder_length",
           "IL_number",
@@ -113,5 +116,8 @@ treestats_indices = [
           "rooted_quartet_index",
           "treeness",
           "ladder_length",
-          "IL_number"
+          "IL_number",
+          "pitchforks",
+          "four_caterpillars",
+          "double_cherries"
           ] 

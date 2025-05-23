@@ -104,6 +104,12 @@ class TreeBalance:
                 return subgraph_indices.CherryIndex()
             case "modified_cherry_index":
                 return subgraph_indices.ModifiedCherryIndex()
+            case "pitchforks":
+                return subgraph_indices.Pitchforks()
+            case "four_caterpillars":
+                return subgraph_indices.FourCaterpillars()
+            case "double_cherries":
+                return subgraph_indices.DoubleCherries()
             case "rooted_quartet_index":
                 return subgraph_indices.RootedQuartetIndex()
             case "ladder_length":

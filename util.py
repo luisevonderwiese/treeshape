@@ -96,6 +96,26 @@ def precompute_ladder_lengths(tree):
         else: #not part of a ladder
             node.add_feature("ladder_length", 0)
 
+def is_pitchfork(tree, node):
+    return clade_size(tree, node) == 3 and len(node.children) == 2
+
+def is_4caterpillar(tree, node):
+    if clade_size(tree, node) != 4:
+        return False
+    c = node.children
+    if len(c) != 2:
+        return False
+    return (c[0].is_leaf() and is_pitchfork(tree, c[1])) or (c[1].is_leaf() and is_pitchfork(tree, c[0]))
+
+def is_double_cherry(tree, node):
+    if clade_size(tree, node) != 4:
+        return False
+    c = node.children
+    if len(c) != 2:
+        return False
+    return (not c[0].is_leaf()) and (not c[1].is_leaf())
+
+
 def balance_index(tree, v):
     if v.is_leaf():
         return 0
