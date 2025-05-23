@@ -108,6 +108,8 @@ class TreeBalance:
                 return subgraph_indices.RootedQuartetIndex()
             case "ladder_length":
                 return subgraph_indices.LadderLength()
+            case "IL_number":
+                return subgraph_indices.ILNumber()
             case "total_cophenetic_index":
                 return cophenetic_indices.TotalCopheneticIndex()
             case "diameter":

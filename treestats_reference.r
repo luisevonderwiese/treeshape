@@ -186,6 +186,12 @@ for (tree_name in tree_names) {
         names <- c(names, "ladder_length")
         end.time <- Sys.time()
         times <- c(times, end.time - start.time)
+
+	start.time <- Sys.time()
+        results <- c(results, treestats::ILnumber(tree))
+        names <- c(names, "IL_number")
+        end.time <- Sys.time()
+        times <- c(times, end.time - start.time)
 	
 	if (!file.exists("results/")){
         	dir.create(file.path("results/"))

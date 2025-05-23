@@ -55,6 +55,7 @@ all_indices =[
           "modified_cherry_index",
           "d_index",
           "ladder_length",
+          "IL_number",
           "total_cophenetic_index",
           "diameter",
           "area_per_pair_index",
@@ -111,5 +112,6 @@ treestats_indices = [
           "mean_I_prime",
           "rooted_quartet_index",
           "treeness",
-          "ladder_length"
+          "ladder_length",
+          "IL_number"
           ] 
