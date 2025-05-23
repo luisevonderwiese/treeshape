@@ -66,20 +66,18 @@ def inner_nodes(tree):
     return inner_nodes
 
 def precompute_distances(tree):
-    distance_matrix = {}
     all_distances = []
     nodes = [node for node in tree.traverse()]
     for node in nodes:
-        distance_matrix[node] = {}
+        node.add_feature("farness", 0)
     for i, node1 in enumerate(nodes):
         for j in range(i + 1, len(nodes)):
             node2 = nodes[j]
             lca = tree.get_common_ancestor(node1, node2)
             dist = depth(tree, node1) + depth(tree, node2) - depth(tree, lca)
-            distance_matrix[node1][node2] = dist
-            distance_matrix[node2][node1] = dist
+            node1.farness += dist
+            node2.farness += dist
             all_distances.append(dist)
-    tree.add_feature("distance_matrix", distance_matrix)
     tree.add_feature("all_distances", all_distances)
 
 def precompute_ladder_lengths(tree):

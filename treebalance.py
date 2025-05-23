@@ -8,6 +8,7 @@ import structure_indices
 import subgraph_indices
 import cophenetic_indices
 import distance_indices
+import network_indices
 import root_indices
 import vertexbalance_indices
 import Ibased_indices
@@ -124,6 +125,12 @@ class TreeBalance:
                 return distance_indices.AreaPerPairIndex()
             case "wiener_index":
                 return distance_indices.WienerIndex()
+            case "minimum_farness":
+                return network_indices.MinimumFarness()
+            case "maximum_farness":
+                return network_indices.MaximumFarness()
+            case "total_farness":
+                return network_indices.TotalFarness()
             case "root_imbalance":
                 return root_indices.RootImbalance()
             case "I_root":
