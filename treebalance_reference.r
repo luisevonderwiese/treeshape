@@ -1,16 +1,9 @@
-tree_names <- c("covid_edited.rooted.tree", 
-		#"nextstrain_ncov_gisaid_global_all-time_timetree.nwk", 
-		#"flu_seasonal_h1n1pdm_ha_2y_timetree.nwk", 
-		#"nextstrain_rsv_a_genome_timetree.nwk", 
-		#"flu_seasonal_h3n2_ha_2y_timetree.nwk", 
-		#"nextstrain_seasonal-flu_h3n2_ha_12y_timetree.nwk", 
-		#"nextstrain_avian-flu_h9n2_ha_all-time_timetree.nwk", 
-		"sequences_rsv_a_treeseq_al_ed.rooted.tree", 
-		#"nextstrain_measles_genome_timetree.nwk", 
-		"sequences_rsv_b_treeseq_al_ed.rooted.tree")
+tree_dir = "data/evonaps_dna/trees/rooted"
+tree_names <- list.files(path=tree_dir, pattern="*.tree", full.names=FALSE, recursive=FALSE)
+
 for (tree_name in tree_names) {
 	print(tree_name)
-	tree <- ape::read.tree(paste("data/virus/trees/rooted/", tree_name, sep=""))
+	tree <- ape::read.tree(paste(tree_dir, tree_name, sep=""))
 	results <- c()
 	names <- c()
 	times <- c()
@@ -243,17 +236,17 @@ for (tree_name in tree_names) {
         if (!file.exists("results/treebalance/benchmark/")){
                 dir.create(file.path("results/treebalance/benchmark/"))
         }
-        if (!file.exists("results/treebalance/metrics/virus/")){
-                dir.create(file.path("results/treebalance/metrics/virus/"))
+        if (!file.exists("results/treebalance/metrics/evonaps_dna/")){
+                dir.create(file.path("results/treebalance/metrics/evonaps_dna/"))
         }
-        if (!file.exists("results/treebalance/benchmark/virus/")){
-                dir.create(file.path("results/treebalance/benchmark/virus/"))
+        if (!file.exists("results/treebalance/benchmark/evonaps_dna/")){
+                dir.create(file.path("results/treebalance/benchmark/evonaps_dna/"))
         }
 
         data <- data.frame(names,results)
-        write.csv(data, paste("results/treebalance/metrics/virus/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("results/treebalance/metrics/evonaps_dna/", tree_name, ".csv", sep=""))
         data <- data.frame(names,times)
-        write.csv(data, paste("results/treebalance/benchmark/virus/", tree_name, ".csv", sep=""))
+        write.csv(data, paste("results/treebalance/benchmark/evonaps_dna/", tree_name, ".csv", sep=""))
 
 
 }

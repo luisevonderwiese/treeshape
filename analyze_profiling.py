@@ -1,6 +1,8 @@
 import os
 import matplotlib.pyplot as plt
+from ete3 import Tree
 from tabulate import tabulate
+import numpy as np
 import util
 
 
@@ -31,8 +33,8 @@ def analyze(tree_name, python_dir, R_dir):
         name = parts[1].strip("\"")
         time = float(parts[2])
         d[name]["treestats"] = time
-    res = [[name] + [d[name][setup] for setup in ["no_precompute", "precompute", "treestats"]] for name in names]
-    print(tabulate(res, headers = ["metric", "no_precompute", "precompute", "treestats"], tablefmt="pipe", floatfmt=".6f"))
+    #res = [[name] + [d[name][setup] for setup in ["no_precompute", "precompute", "treestats"]] for name in names]
+    #print(tabulate(res, headers = ["metric", "no_precompute", "precompute", "treestats"], tablefmt="pipe", floatfmt=".6f"))
     return d
 
 def boxplots(all_times, plots_dir):
@@ -40,26 +42,51 @@ def boxplots(all_times, plots_dir):
         os.makedirs(plots_dir)
     for index, times in all_times.items():
         fig, ax = plt.subplots()
-        ax.boxplot(times.values())
+        data_matrix = [list(el) for el in times.values()]
+        for i, data in enumerate(data_matrix):
+            d = np.abs(data - np.median(data))
+            mdev = np.median(d)
+            s = d/mdev if mdev else np.zeros(len(d))
+            data_matrix[i] = [el for j, el in enumerate(data) if s[j] < 2]
+        ax.boxplot(data_matrix)
         ax.set_xticklabels(times.keys())
         plt.savefig(os.path.join(plots_dir, index + ".png"))
 
-tree_dir = "data/virus/trees/rooted/"
-python_dir = "results/python/benchmark/virus"
-R_dir = "results/treestats/benchmark/virus"
+tree_dir = "data/evonaps_dna/trees/rooted/"
+python_dir = "results/python/benchmark/evonaps_dna"
+R_dir = "results/treestats/benchmark/evonaps_dna"
 
 all_times = {}
 for tree_name in os.listdir(tree_dir):
+    print(tree_name)
+    n = len(Tree(os.path.join(tree_dir, tree_name)))
     times = analyze(tree_name, python_dir, R_dir)
     if len(all_times) == 0:
         for index, subtimes in times.items():
             all_times[index] = {}
             for mode, time in subtimes.items():
-                all_times[index][mode] = [time]
+                all_times[index][mode] = [time / n]
     else:
-        for index, sub_times in times.items():
+        for index, subtimes in times.items():
             for mode, time in subtimes.items():
-                all_times[index][mode].append(time)
-boxplots(all_times, "results/plots/benchmark/virus")
+                all_times[index][mode].append(time / n)
+res = []
+for index, times in all_times.items():
+    row = [index]
+    for mode, time_arr in times.items():
+        row.append(1000 * sum(time_arr) / len(time_arr))
+    res.append(row)
+print(tabulate(res, headers = ["metric", "no_precompute", "precompute", "treestats"], tablefmt="pipe", floatfmt=".8f"))
+
+res = []
+for index, times in all_times.items():
+    row = [index]
+    for mode, time_arr in times.items():
+        row.append(max(time_arr))
+    res.append(row)
+print(tabulate(res, headers = ["metric", "no_precompute", "precompute", "treestats"], tablefmt="pipe", floatfmt=".8f"))
+
+
+boxplots(all_times, "results/plots/benchmark/evonaps_dna")
 
         

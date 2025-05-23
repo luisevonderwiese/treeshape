@@ -11,8 +11,8 @@ import indexlists
 
 
 class TestMetrics(unittest.TestCase):
-    ref_dir = "results/treestats/metrics/virus" 
-    tree_dir = "data/virus/trees/rooted"
+    ref_dir = "results/treestats/metrics/evonaps_dna" 
+    tree_dir = "data/evonaps_dna/trees/rooted"
     expected = {}
     for tree_name in os.listdir(tree_dir):
         try:

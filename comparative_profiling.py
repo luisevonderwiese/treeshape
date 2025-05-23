@@ -8,7 +8,7 @@ import util
 
 
 def profile(tree_dir, treename, results_dir):
-    treepath = os.path.join("data/virus/trees/rooted/", treename)
+    treepath = os.path.join(tree_dir, treename)
     times = []
     for index_name in indexlists.treestats_indices:
         print(index_name)
@@ -47,8 +47,8 @@ def profile(tree_dir, treename, results_dir):
         outfile.write(",".join([str(time) for time in times]) + "\n")
 
 
-tree_dir = "data/virus/trees/rooted/"
-results_dir = "results/python/benchmark/virus"
+tree_dir = "data/evonaps_dna/trees/rooted/"
+results_dir = "results/python/benchmark/evonaps_dna"
 
 for treename in os.listdir(tree_dir):
     profile(tree_dir, treename, results_dir)

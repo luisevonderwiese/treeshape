@@ -8,8 +8,8 @@ from treebalance import TreeBalance
 import indexlists
 
 class TestMetrics(unittest.TestCase):
-    ref_dir = "results/treebalance/metrics/virus"
-    tree_dir = "data/virus/trees/rooted"
+    ref_dir = "results/treebalance/metrics/evonaps_dna"
+    tree_dir = "data/evonaps_dna/trees/rooted"
     expected = {}
     for tree_name in os.listdir(tree_dir):
         try:
