@@ -90,3 +90,37 @@ class RootedQuartetIndex(TreeIndex):
 
     def imbalance(self):
         return -1
+
+class LadderLength(TreeIndex):
+    def evaluate(self, tree, mode):
+        if mode == "ARBITRARY":
+            raise ValueError("ladder_length is not defined for arbitrary trees")
+        try:
+            return tree.ladder_length
+        except AttributeError:
+            for node in tree.traverse("postorder"):
+                if node.is_leaf():
+                    node.add_feature("ladder_length", -1)
+                    continue
+                c = node.children
+                if c[0].is_leaf():
+                    node.add_feature("ladder_length", c[1].ladder_length + 1)
+                elif c[1].is_leaf():
+                    node.add_feature("ladder_length", c[0].ladder_length + 1)
+                else: #not part of a ladder
+                    node.add_feature("ladder_length", 0)
+            max_ladder = 0
+            for node in tree.traverse("postorder"):
+                max_ladder = max(max_ladder, node.ladder_length)
+            tree.add_feature("ladder_length", max_ladder)
+            return tree.ladder_length
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+

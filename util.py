@@ -82,6 +82,20 @@ def precompute_distances(tree):
     tree.add_feature("distance_matrix", distance_matrix)
     tree.add_feature("all_distances", all_distances)
 
+def precompute_ladder_lengths(tree):
+    for node in tree.traverse("postorder"):
+        if node.is_leaf():
+            node.add_feature("ladder_length", -1)
+            continue
+        c = node.children
+        assert len(c)==2 #only defined for bifurcating trees
+        if c[0].is_leaf():
+            node.add_feature("ladder_length", c[1].ladder_length + 1)
+        elif c[1].is_leaf():
+            node.add_feature("ladder_length", c[0].ladder_length + 1)
+        else: #not part of a ladder
+            node.add_feature("ladder_length", 0)
+
 def balance_index(tree, v):
     if v.is_leaf():
         return 0
