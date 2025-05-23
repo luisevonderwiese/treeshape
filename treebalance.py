@@ -112,6 +112,8 @@ class TreeBalance:
                 return distance_indices.Diameter()
             case "area_per_pair_index":
                 return distance_indices.AreaPerPairIndex()
+            case "wiener_index":
+                return distance_indices.WienerIndex()
             case "root_imbalance":
                 return root_indices.RootImbalance()
             case "I_root":

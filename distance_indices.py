@@ -12,7 +12,15 @@ class Diameter(TreeIndex):
         try:
             return tree.diameter
         except AttributeError:
-            util.diameter_recursive(tree, tree)
+            if mode == "BINARY":
+                util.diameter_recursive(tree, tree)
+            if mode == "ARBITRARY":
+                try:
+                    distances = tree.all_distances
+                except AttributeError:
+                    util.precompute_distances(tree)
+                    distances = tree.all_distances
+                tree.diameter = max(distances)
             return tree.diameter
 
     def maximum(self, n, m, mode):
@@ -41,7 +49,7 @@ class AreaPerPairIndex(TreeIndex):
             else:
                 s = SackinIndex().evaluate_only(tree, mode)
                 c = TotalCopheneticIndex().evaluate_only(tree, mode)
-                tree.add_feature("area_per_pair_index", 2 / n * s - 4 / (n * (n - 1)) * c)
+                tree.add_feature("area_per_pair_index", (2 / n) * s - (4 / (n * (n - 1))) * c)
             return tree.area_per_pair_index
 
     def maximum(self, n, m, mode):
@@ -49,6 +57,30 @@ class AreaPerPairIndex(TreeIndex):
 
     def minimum(self, n, m, mode):
         return float('nan')
+
+    def imbalance(self):
+        return 0
+
+
+class WienerIndex(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.wiener_index
+        except AttributeError:
+            n = util.clade_size(tree, tree)
+            if n == 1:
+                tree.add_feature("wiener_index", 0)
+            else:
+                s = SackinIndex().evaluate_only(tree, mode)
+                c = TotalCopheneticIndex().evaluate_only(tree, mode)
+                tree.add_feature("wiener_index", (n - 1) * s - 2 * c)
+            return tree.wiener_index
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
 
     def imbalance(self):
         return 0

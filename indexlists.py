@@ -57,6 +57,7 @@ all_indices =[
           "total_cophenetic_index",
           "diameter",
           "area_per_pair_index",
+          "wiener_index",
           "root_imbalance",
           "I_root",
           "colless_index",
