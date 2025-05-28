@@ -12,6 +12,7 @@ import treeshape.Ibased_indices as Ibased_indices
 import treeshape.ranking_indices as ranking_indices
 import treeshape.branchlength_indices as branchlength_indices
 import treeshape.util as util
+from treeshape.indexlists import INDICES
 
 
 class TreeShape:
@@ -53,6 +54,18 @@ class TreeShape:
         if v - min_v < -0.00001:
             raise ArithmeticError("Value below minimum for " + index_name)
         return (v - min_v) / (max_v - min_v)
+
+    def all_absolute(self):
+        res = {}
+        for index_name in INDICES:
+            res[index_name] = self.absolute(index_name)
+        return res
+
+    def all_relative(self):
+        res = {}
+        for index_name in INDICES:
+            res[index_name] = self.relative(index_name)
+        return res
 
 
     def relative_normalized(self, index_name):

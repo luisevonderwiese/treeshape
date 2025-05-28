@@ -18,6 +18,7 @@ class MaximumWidth(TreeIndex):
             return float("nan")
         if mode == "ARBITRARY":
             return n
+        return float("nan")
 
     def minimum(self, n, m, mode):
         if n == 1:
@@ -46,6 +47,7 @@ class MaxdiffWidths(TreeIndex):
             return float("nan")
         if mode == "ARBITRARY":
             return n - 1
+        return float("nan")
 
     def minimum(self, n, m, mode):
         if n == 1:
@@ -74,6 +76,7 @@ class ModifiedMaxdiffWidths(TreeIndex):
             return float("nan")
         if mode == "ARBITRARY":
             return n - 1
+        return float("nan")
 
     def minimum(self, n, m, mode):
         if n == 1:

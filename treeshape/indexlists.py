@@ -36,7 +36,7 @@ treebalance_indices = [
         "variance_of_leaves_depths",
         "d_index"]
 
-all_indices =[
+INDICES =[
           "average_leaf_depth",
           "variance_of_leaves_depths",
           "sackin_index",
@@ -63,9 +63,9 @@ all_indices =[
           "diameter",
           "area_per_pair_index",
           "wiener_index",
-          "minimum_farness",
-          "maximum_farness",
-          "total_farness",
+          #"minimum_farness",
+          #"maximum_farness",
+          #"total_farness",
           "root_imbalance",
           "I_root",
           "colless_index",
