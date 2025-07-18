@@ -214,7 +214,7 @@ class Stairs2(TreeIndex):
         return float('nan')
 
     def imbalance(self):
-        return 1
+        return -1
 
 
 class RogersJIndex(TreeIndex):
