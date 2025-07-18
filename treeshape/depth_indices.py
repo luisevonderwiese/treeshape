@@ -162,7 +162,7 @@ class MaximumDepth(TreeIndex):
         if n == 1:
             return 0
         if mode == "BINARY":
-            return math.floor(math.log2(n)) + 1
+            return math.ceil(math.log2(n))
         if mode == "ARBITRARY":
             return 1
 
