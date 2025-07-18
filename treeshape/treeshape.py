@@ -64,7 +64,10 @@ class TreeShape:
     def all_relative(self):
         res = {}
         for index_name in INDICES:
-            res[index_name] = self.relative(index_name)
+            try:
+                res[index_name] = self.relative(index_name)
+            except ValueError:
+                res[index_name] = float("nan")
         return res
 
 
