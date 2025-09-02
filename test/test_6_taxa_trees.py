@@ -4,7 +4,7 @@ import math
 import unittest
 
 from treeshape.treeshape import TreeShape
-import treeshape.indexlists as indexlists
+from treeshape.indexlists import INDICES
 
 
 class TestMetrics(unittest.TestCase):
@@ -39,9 +39,9 @@ class TestMetrics(unittest.TestCase):
         "diameter" : 6,
         "area_per_pair_index" : 60 / 15,
         "wiener_index": 60,
-        "minimum_farness" : 30,
-        "maximum_farness" : 55,
-        "total_farness" : 460,
+        "minimum_farness" : 20,
+        "maximum_farness" : 39,
+        "total_farness" : 320,
         "root_imbalance" : 5 / 6,
         "I_root" : 1,
         "colless_index" : 10,
@@ -91,9 +91,9 @@ class TestMetrics(unittest.TestCase):
         "diameter" : 5,
         "area_per_pair_index" : 59 / 15,
         "wiener_index": 59,
-        "minimum_farness" : 28,
-        "maximum_farness" : 48,
-        "total_farness" : 434,
+        "minimum_farness" : 18,
+        "maximum_farness" : 37,
+        "total_farness" : 308,
         "root_imbalance" : 5 / 6,
         "I_root" : 1,
         "colless_index" : 7,
@@ -143,9 +143,9 @@ class TestMetrics(unittest.TestCase):
         "diameter" : 5,
         "area_per_pair_index" : 60 / 15,
         "wiener_index": 60,
-        "minimum_farness" : 26,
-        "maximum_farness" : 48,
-        "total_farness" : 416,
+        "minimum_farness" : 19,
+        "maximum_farness" : 35,
+        "total_farness" : 312,
         "root_imbalance" : 5 / 6,
         "I_root": 1,
         "colless_index" : 6,
@@ -195,9 +195,9 @@ class TestMetrics(unittest.TestCase):
         "diameter" : 6,
         "area_per_pair_index" : 63 / 15,
         "wiener_index": 63,
-        "minimum_farness" : 24,
-        "maximum_farness" : 48,
-        "total_farness" : 406,
+        "minimum_farness" : 21,
+        "maximum_farness" : 38,
+        "total_farness" : 332,
         "root_imbalance" : 4 / 6,
         "I_root" : 1 / 2,
         "colless_index" : 5,
@@ -247,9 +247,9 @@ class TestMetrics(unittest.TestCase):
         "diameter" : 5,
         "area_per_pair_index" : 62 / 15,
         "wiener_index": 62,
-        "minimum_farness" : 22,
-        "maximum_farness" : 41,
-        "total_farness" : 380,
+        "minimum_farness" : 19,
+        "maximum_farness" : 36,
+        "total_farness" : 320,
         "root_imbalance" : 4 / 6,
         "I_root" :  1 / 2,
         "colless_index" : 2,
@@ -300,8 +300,8 @@ class TestMetrics(unittest.TestCase):
         "area_per_pair_index" : 64 / 15,
         "wiener_index": 64,
         "minimum_farness" : 22,
-        "maximum_farness" : 43,
-        "total_farness" : 388,
+        "maximum_farness" : 37,
+        "total_farness" : 336,
         "root_imbalance" : 3 / 6,
         "I_root" : 0,
         "colless_index" : 2,
@@ -331,7 +331,7 @@ class TestMetrics(unittest.TestCase):
             print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeShape(tree, "BINARY")
-            for index_name in indexlists.all_indices:
+            for index_name in INDICES:
                 print(index_name)
                 self.assertAlmostEqual(tb.absolute(index_name), self.expected[test_tree_name][index_name])
 
@@ -341,7 +341,7 @@ class TestMetrics(unittest.TestCase):
             print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeShape(tree, "BINARY")
-            for index_name in indexlists.all_indices:
+            for index_name in INDICES:
                 print(index_name)
                 try:
                     tb.relative(index_name)
@@ -355,7 +355,7 @@ class TestMetrics(unittest.TestCase):
             print(test_tree_name)
             tree = Tree(os.path.join(self.test_tree_dir, test_tree_name  +".tree"))
             tb = TreeShape(tree, "ARBITRARY")
-            for index_name in indexlists.all_indices:
+            for index_name in INDICES:
                 print(index_name)
                 try:
                     tb.relative(index_name)

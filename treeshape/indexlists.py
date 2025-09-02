@@ -28,9 +28,9 @@ INDICES =[
           "diameter",
           "area_per_pair_index",
           "wiener_index",
-          #"minimum_farness",
-          #"maximum_farness",
-          #"total_farness",
+          "minimum_farness",
+          "maximum_farness",
+          "total_farness",
           "root_imbalance",
           "I_root",
           

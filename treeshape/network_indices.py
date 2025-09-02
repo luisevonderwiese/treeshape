@@ -36,7 +36,7 @@ class MinimumFarness(TreeIndex):
             try:
                 tree.farness
             except AttributeError:
-                util.precompute_distances(tree)
+                util.precompute_farness(tree)
             tree.add_feature("minimum_farness", min([node.farness for node in tree.traverse()]))
             return tree.minimum_farness
 
@@ -57,7 +57,7 @@ class MaximumFarness(TreeIndex):
             try:
                 tree.farness
             except AttributeError:
-                util.precompute_distances(tree)
+                util.precompute_farness(tree)
             tree.add_feature("maximum_farness", max([node.farness for node in tree.traverse()]))
             return tree.maximum_farness
 
@@ -78,7 +78,7 @@ class TotalFarness(TreeIndex):
             try:
                 tree.farness
             except AttributeError:
-                util.precompute_distances(tree)
+                util.precompute_farness(tree)
             tree.add_feature("total_farness", sum([node.farness for node in tree.traverse()]))
             return tree.total_farness
 
