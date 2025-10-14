@@ -78,21 +78,42 @@ def precompute_distances(tree):
     tree.add_feature("all_distances", all_distances)
 
 
-def precompute_farness(tree):
-    num_nodes = 0
+def precompute_nodes_below(tree):
     for node in tree.traverse("postorder"):
-        num_nodes += 1
         node.add_feature("nodes_below", 1)
         if node.is_leaf():
             continue
         for c in node.children:
             node.nodes_below += c.nodes_below
+
+def precompute_farness(tree):
+    try:
+        tree.nodes_below
+    except AttributeError:
+        precompute_nodes_below(tree)
+    num_nodes = tree.nodes_below
     tree.add_feature("farness", sum([depth(tree, node) for node in tree.traverse()]))
     for node in tree.traverse("preorder"):
         if node.is_leaf():
             continue
         for c in node.children:
             c.add_feature("farness", node.farness - c.nodes_below + (num_nodes - c.nodes_below))
+
+def precompute_bcent(tree):
+    try:
+        tree.nodes_below
+    except AttributeError:
+        precompute_nodes_below(tree)
+    num_nodes = tree.nodes_below
+    for node in tree.traverse():
+        if node.is_leaf():
+            continue
+        node.add_feature("bcent", (node.nodes_below - 1) * (num_nodes - node.nodes_below))
+        cs = node.children
+        for i, c1 in enumerate(cs):
+            for j in range(i + 1, len(cs)):
+                c2 = cs[j]
+                node.bcent += c1.nodes_below * c2.nodes_below
 
 
 def precompute_ladder_lengths(tree):

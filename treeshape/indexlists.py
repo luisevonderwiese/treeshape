@@ -31,6 +31,11 @@ INDICES =[
           "minimum_farness",
           "maximum_farness",
           "total_farness",
+          "minimum_bcent",
+          "maximum_bcent",
+          "mean_bcent",
+          "bcent_variance",
+          "bcent_root",
           "root_imbalance",
           "I_root",
           

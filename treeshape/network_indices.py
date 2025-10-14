@@ -91,3 +91,107 @@ class TotalFarness(TreeIndex):
     def imbalance(self):
         return 0
 
+class MinimumBCent(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.minimum_bcent
+        except AttributeError:
+            try:
+                tree.bcent
+            except AttributeError:
+                util.precompute_bcent(tree)
+            tree.add_feature("minimum_bcent", min([node.bcent for node in tree.traverse() if not node.is_leaf()]))
+            return tree.minimum_bcent
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class MaximumBCent(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.maximum_bcent
+        except AttributeError:
+            try:  
+                tree.bcent
+            except AttributeError:
+                util.precompute_bcent(tree)
+            tree.add_feature("maximum_bcent", max([node.bcent for node in tree.traverse() if not node.is_leaf()]))
+            return tree.maximum_bcent
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class MeanBCent(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.mean_bcent
+        except AttributeError:
+            try:
+                tree.bcent
+            except AttributeError:
+                util.precompute_bcent(tree)
+            bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
+            tree.add_feature("mean_bcent", sum(bcents) / len(bcents))
+            return tree.mean_bcent
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class BCentVariance(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            return tree.bcent_variance
+        except AttributeError:
+            try:
+                tree.bcent
+            except AttributeError:
+                util.precompute_bcent(tree)
+            bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
+            tree.add_feature("bcent_variance", np.var(bcents))
+            return tree.bcent_variance
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+class BCentRoot(TreeIndex):
+    def evaluate(self, tree, mode):
+        try:
+            tree.bcent
+        except AttributeError:
+            util.precompute_bcent(tree)
+        return tree.bcent
+
+    def maximum(self, n, m, mode):
+        return float("nan")
+
+    def minimum(self, n, m, mode):
+        return float("nan")
+
+    def imbalance(self):
+        return 0
+
+

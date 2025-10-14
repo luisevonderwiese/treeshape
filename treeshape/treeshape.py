@@ -144,6 +144,16 @@ class TreeShape:
                 return network_indices.MaximumFarness()
             case "total_farness":
                 return network_indices.TotalFarness()
+            case "minimum_bcent":
+                return network_indices.MinimumBCent()
+            case "maximum_bcent":
+                return network_indices.MaximumBCent()
+            case "mean_bcent":
+                return network_indices.MeanBCent()
+            case "bcent_variance":
+                return network_indices.BCentVariance()
+            case "bcent_root":
+                return network_indices.BCentRoot()
             case "root_imbalance":
                 return root_indices.RootImbalance()
             case "I_root":
