@@ -1,6 +1,6 @@
-import treeshape.util as util
-from treeshape.tree_index import TreeIndex
-from treeshape.depth_indices import MaximumDepth
+import treeshapy.util as util
+from treeshapy.tree_index import TreeIndex
+from treeshapy.depth_indices import MaximumDepth
 
 class MaximumWidth(TreeIndex):
     def evaluate_only(self, tree, mode):

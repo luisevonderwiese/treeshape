@@ -1,7 +1,7 @@
 import numpy as np
 
-import treeshape.util as util
-from treeshape.tree_index import TreeIndex
+import treeshapy.util as util
+from treeshapy.tree_index import TreeIndex
 
 class Treeness(TreeIndex):
     def evaluate(self, tree, mode):

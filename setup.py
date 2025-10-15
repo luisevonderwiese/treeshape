@@ -2,12 +2,12 @@ from setuptools import find_packages
 from setuptools import setup
 
 setup(
-    name='treeshape',
+    name='treeshapy',
     version='0.0.1',
     install_requires=['numpy', 'ete3'],
     packages=find_packages('.'),
     package_dir={'': '.'},
-    url='https://github.com/luisevonderwiese/treeshape',
+    url='https://github.com/luisevonderwiese/treeshapy',
     license='GNU',
     author='Luise Häuser',
     author_email='luise.haeuser@h-its.org',

@@ -1,17 +1,17 @@
 import math
 
-import treeshape.depth_indices as depth_indices
-import treeshape.width_indices as width_indices
-import treeshape.structure_indices as structure_indices
-import treeshape.subgraph_indices as subgraph_indices
-import treeshape.distance_indices as distance_indices
-import treeshape.network_indices as network_indices
-import treeshape.root_indices as root_indices
-import treeshape.node_indices as node_indices
-import treeshape.Ibased_indices as Ibased_indices
-import treeshape.ranking_indices as ranking_indices
-import treeshape.branchlength_indices as branchlength_indices
-import treeshape.util as util
+import treeshapy.depth_indices as depth_indices
+import treeshapy.width_indices as width_indices
+import treeshapy.structure_indices as structure_indices
+import treeshapy.subgraph_indices as subgraph_indices
+import treeshapy.distance_indices as distance_indices
+import treeshapy.network_indices as network_indices
+import treeshapy.root_indices as root_indices
+import treeshapy.node_indices as node_indices
+import treeshapy.Ibased_indices as Ibased_indices
+import treeshapy.ranking_indices as ranking_indices
+import treeshapy.branchlength_indices as branchlength_indices
+import treeshapy.util as util
 
 
 INDICES =[

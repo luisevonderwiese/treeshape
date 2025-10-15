@@ -1,5 +1,5 @@
 from ete3 import Tree
-from treeshape.treeshape import TreeShape, INDICES
+from treeshapy.treeshapy import TreeShape, INDICES
 
 tree =  Tree("A;")
 tb_b = TreeShape(tree, "BINARY")

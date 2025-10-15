@@ -1,8 +1,8 @@
 import math
 from collections import Counter
 
-import treeshape.util as util
-from treeshape.tree_index import TreeIndex
+import treeshapy.util as util
+from treeshapy.tree_index import TreeIndex
 
 
 class RootedQuartetIndex(TreeIndex):

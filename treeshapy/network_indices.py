@@ -1,9 +1,9 @@
 import numpy as np
 
-import treeshape.util as util
-from treeshape.tree_index import TreeIndex
-from treeshape.depth_indices import SackinIndex
-from treeshape.distance_indices import TotalCopheneticIndex
+import treeshapy.util as util
+from treeshapy.tree_index import TreeIndex
+from treeshapy.depth_indices import SackinIndex
+from treeshapy.distance_indices import TotalCopheneticIndex
 
 class WienerIndex(TreeIndex):
     def evaluate(self, tree, mode):

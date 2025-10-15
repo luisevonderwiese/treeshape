@@ -1,7 +1,7 @@
 import math
 
-import treeshape.util as util
-from treeshape.tree_index import TreeIndex
+import treeshapy.util as util
+from treeshapy.tree_index import TreeIndex
 
 class CollessIndex(TreeIndex):
     def evaluate_only(self, tree, mode):
