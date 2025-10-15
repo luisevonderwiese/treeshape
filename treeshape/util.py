@@ -40,17 +40,6 @@ def depths_recursive(tree):
         if not child.is_leaf():
             depths_recursive(child)
 
-def diameter_recursive(tree, v):
-    if v.is_leaf():
-        v.diameter = 0
-        return 1
-    c = v.children
-    heights = []
-    for child in c:
-        heights.append(diameter_recursive(tree, child))
-    v.add_feature("diameter", max([c[0].diameter, c[1].diameter, heights[0] + heights[1]]))
-    return 1 + max(heights)
-
 def widths(tree):
     return Counter([depth(tree, v) for v in tree.traverse("postorder")])
 
@@ -65,18 +54,25 @@ def inner_nodes(tree):
             inner_nodes.append(v)
     return inner_nodes
 
+def find_distant_node(tree):
+    max_depth = 0
+    distant_node = None
+    for node in tree.iter_descendants():
+        if node.name == "dummy":
+            continue
+        if node.depth > max_depth:
+            max_depth = node.depth
+            distant_node = node.name
+    return max_depth, distant_node
 
-def precompute_distances(tree):
-    all_distances = []
-    nodes = [node for node in tree.traverse()]
-    for i, node1 in enumerate(nodes):
-        for j in range(i + 1, len(nodes)):
-            node2 = nodes[j]
-            lca = tree.get_common_ancestor(node1, node2)
-            dist = depth(tree, node1) + depth(tree, node2) - depth(tree, lca)
-            all_distances.append(dist)
-    tree.add_feature("all_distances", all_distances)
-
+def diameter(tree):
+    _, distant_node = find_distant_node(tree)
+    tree_copy = tree.copy("newick")
+    tree_copy.add_child(name="dummy") # required to keep the root node
+    tree_copy.set_outgroup(tree_copy&distant_node)
+    precompute_depths(tree_copy)
+    dist, distant_node2 = find_distant_node(tree_copy)
+    return dist
 
 def precompute_nodes_below(tree):
     for node in tree.traverse("postorder"):

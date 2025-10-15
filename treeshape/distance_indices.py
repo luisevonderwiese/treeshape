@@ -52,15 +52,10 @@ class Diameter(TreeIndex):
         try:
             return tree.diameter
         except AttributeError:
-            if mode == "BINARY":
-                util.diameter_recursive(tree, tree)
-            if mode == "ARBITRARY":
-                try:
-                    distances = tree.all_distances
-                except AttributeError:
-                    util.precompute_distances(tree)
-                    distances = tree.all_distances
-                tree.diameter = max(distances)
+            if tree.is_leaf(): #single-node-tree
+                tree.add_feature("diameter", 0)
+            else:
+                tree.add_feature("diameter", util.diameter(tree))
             return tree.diameter
 
     def maximum(self, n, m, mode):
