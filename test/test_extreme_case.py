@@ -1,12 +1,12 @@
 from ete3 import Tree
 from treeshape.treeshape import TreeShape
-import treeshape.indexlists as indexlists
+from treeshape.indexlists import INDICES
 
 tree =  Tree("A;")
 tb_b = TreeShape(tree, "BINARY")
 tb_a = TreeShape(tree, "ARBITRARY")
 
-for index_name in indexlists.all_indices:
+for index_name in INDICES:
     print(index_name)
     try:
         print(tb_b.absolute(index_name))

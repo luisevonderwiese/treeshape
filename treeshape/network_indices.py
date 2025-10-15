@@ -96,11 +96,14 @@ class MinimumBCent(TreeIndex):
         try:
             return tree.minimum_bcent
         except AttributeError:
-            try:
-                tree.bcent
-            except AttributeError:
-                util.precompute_bcent(tree)
-            tree.add_feature("minimum_bcent", min([node.bcent for node in tree.traverse() if not node.is_leaf()]))
+            if tree.is_leaf():
+                tree.add_feature("minimum_bcent", 0)
+            else:
+                try:
+                    tree.bcent
+                except AttributeError:
+                    util.precompute_bcent(tree)
+                tree.add_feature("minimum_bcent", min([node.bcent for node in tree.traverse() if not node.is_leaf()]))
             return tree.minimum_bcent
 
     def maximum(self, n, m, mode):
@@ -117,11 +120,14 @@ class MaximumBCent(TreeIndex):
         try:
             return tree.maximum_bcent
         except AttributeError:
-            try:  
-                tree.bcent
-            except AttributeError:
-                util.precompute_bcent(tree)
-            tree.add_feature("maximum_bcent", max([node.bcent for node in tree.traverse() if not node.is_leaf()]))
+            if tree.is_leaf():
+                tree.add_feature("maximum_bcent", 0)
+            else:
+                try:  
+                    tree.bcent
+                except AttributeError:
+                    util.precompute_bcent(tree)
+                tree.add_feature("maximum_bcent", max([node.bcent for node in tree.traverse() if not node.is_leaf()]))
             return tree.maximum_bcent
 
     def maximum(self, n, m, mode):
@@ -138,12 +144,15 @@ class MeanBCent(TreeIndex):
         try:
             return tree.mean_bcent
         except AttributeError:
-            try:
-                tree.bcent
-            except AttributeError:
-                util.precompute_bcent(tree)
-            bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
-            tree.add_feature("mean_bcent", sum(bcents) / len(bcents))
+            if tree.is_leaf():
+                tree.add_feature("mean_bcent", 0)
+            else:
+                try:
+                    tree.bcent
+                except AttributeError:
+                    util.precompute_bcent(tree)
+                bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
+                tree.add_feature("mean_bcent", sum(bcents) / len(bcents))
             return tree.mean_bcent
 
     def maximum(self, n, m, mode):
@@ -160,12 +169,15 @@ class BCentVariance(TreeIndex):
         try:
             return tree.bcent_variance
         except AttributeError:
-            try:
-                tree.bcent
-            except AttributeError:
-                util.precompute_bcent(tree)
-            bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
-            tree.add_feature("bcent_variance", np.var(bcents))
+            if tree.is_leaf():
+                tree.add_feature("bcent_variance", 0)
+            else:
+                try:
+                    tree.bcent
+                except AttributeError:
+                    util.precompute_bcent(tree)
+                bcents = [node.bcent for node in tree.traverse() if not node.is_leaf()]
+                tree.add_feature("bcent_variance", np.var(bcents))
             return tree.bcent_variance
 
     def maximum(self, n, m, mode):
@@ -182,7 +194,10 @@ class BCentRoot(TreeIndex):
         try:
             tree.bcent
         except AttributeError:
-            util.precompute_bcent(tree)
+            if tree.is_leaf():
+                tree.add_feature("bcent", 0)
+            else:
+                util.precompute_bcent(tree)
         return tree.bcent
 
     def maximum(self, n, m, mode):
