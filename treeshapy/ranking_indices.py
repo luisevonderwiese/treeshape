@@ -33,10 +33,7 @@ class FurnasRank(TreeIndex):
 
     def maximum(self, n, m, mode):
         if mode == "BINARY":
-            try:
-                return util.we(n)
-            except NotImplementedError:
-                return float("nan")
+            return util.we(n)
         if mode == "ABITRARY":
             return float("nan")
 

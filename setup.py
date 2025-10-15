@@ -7,6 +7,7 @@ setup(
     install_requires=['numpy', 'ete3'],
     packages=find_packages('.'),
     package_dir={'': '.'},
+    package_data={'treeshapy' :['treeshapy/resources/*']},
     url='https://github.com/luisevonderwiese/treeshapy',
     license='GNU',
     author='Luise Häuser',

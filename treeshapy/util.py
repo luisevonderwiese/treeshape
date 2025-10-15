@@ -1,6 +1,10 @@
 import math
 import numpy as np
+import json
+import pkg_resources
 from collections import Counter
+
+we_dict = None
 
 def leaf_depths(tree):
     return [depth(tree, leaf) for leaf in tree.iter_leaves()]
@@ -176,18 +180,22 @@ def precompute_heights(tree):
         h = 1 + max([child.height for child in c])
         node.add_feature("height", h)
 
-def we(x):
-    lookup = [0, 1, 1, 1, 2, 3, 6, 11, 23, 46, 98, 207, 451, \
-            983, 2179, 4850, 10905, 24631, 56011, 127912, \
-            293547, 676157, 1563372, 3626149, 8436379, \
-            19680277, 46026618, 107890609, 253450711, \
-            596572387, 1406818759, 3323236238, 7862958391, \
-            18632325319, 44214569100]
-    if x >= len(lookup):
-        raise NotImplementedError("WE Number not provided for " + str(x))
-    return lookup[x]
+def read_we():
+    global we_dict
+    if we_dict is not None:
+        return
+    stream = pkg_resources.resource_stream(__name__, 'resources/we.json')
+    we_dict = json.loads(stream.read())
+    we_dict = {int(k): int(v) for k, v in we_dict.items()}
+
+def we(n):
+    read_we()
+    if not n in we_dict:
+        return float("nan")
+    return we_dict[n]
 
 def furnas_ranks(tree):
+    read_we()
     for node in tree.traverse("postorder"):
         if node.is_leaf():
             node.add_feature("furnas_rank", 1)
@@ -206,14 +214,15 @@ def furnas_ranks(tree):
             beta = clade_size(tree, c[0])
         s = 0
         for i in range(1, alpha):
-            try:
-                s += we(i) * we(clade_size(tree, node) - i)
-            except NotImplementedError:
+            j = clade_size(tree, node) - i
+            if i in we_dict and j in we_dict:
+                s += we_dict[i] * we_dict[j]
+            else:
                 node.add_feature("furnas_rank", float("nan"))
                 continue
-        try:
-            s += (f_l - 1) * we(beta) + f_r
-        except NotImplementedError:
+        if beta in we_dict:
+            s += (f_l - 1) * we_dict[beta] + f_r
+        else:
             node.add_feature("furnas_rank", float("nan"))
             continue
         if alpha == beta:
